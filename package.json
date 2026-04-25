@@ -3,7 +3,7 @@
   "displayName": "DeepSeek V4 for Copilot Chat",
   "description": "Pick DeepSeek V4 Pro & Flash from the Copilot Chat model picker. Vision, thinking mode, agent tools — zero config, BYOK.",
   "icon": "resources/icon.png",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "publisher": "Vizards",
   "license": "MIT",
   "repository": {
@@ -54,6 +54,10 @@
         "title": "DeepSeek: Set API Key"
       },
       {
+        "command": "deepseek-copilot.getApiKey",
+        "title": "DeepSeek: Get API Key"
+      },
+      {
         "command": "deepseek-copilot.clearApiKey",
         "title": "DeepSeek: Clear API Key"
       },
@@ -70,6 +74,34 @@
         "title": "DeepSeek: Show Logs"
       }
     ],
+    "walkthroughs": [
+      {
+        "id": "deepseekGettingStarted",
+        "title": "DeepSeek V4 for Copilot Chat",
+        "description": "Set up DeepSeek V4 models in Copilot Chat.",
+        "steps": [
+          {
+            "id": "setApiKey",
+            "title": "Set your DeepSeek API key",
+            "description": "[Get an API key](command:deepseek-copilot.getApiKey) from deepseek.com.\n[Set API Key](command:deepseek-copilot.setApiKey)",
+            "media": {
+              "markdown": "resources/walkthrough/set-api-key.md"
+            },
+            "completionEvents": [
+              "onCommand:deepseek-copilot.setApiKey"
+            ]
+          },
+          {
+            "id": "showModels",
+            "title": "Show DeepSeek models",
+            "description": "If the models are hidden, open VS Code's Language Models manager and show the DeepSeek models.\n[Open Language Models](command:workbench.action.chat.manage)",
+            "media": {
+              "markdown": "resources/walkthrough/show-models.md"
+            }
+          }
+        ]
+      }
+    ],
     "configuration": {
       "title": "DeepSeek Copilot",
       "properties": {
@@ -77,17 +109,6 @@
           "type": "string",
           "default": "https://api.deepseek.com",
           "description": "DeepSeek API base URL. Defaults to official DeepSeek API endpoint."
-        },
-        "deepseek-copilot.thinkingEffort": {
-          "type": "string",
-          "enum": ["high", "max"],
-          "default": "high",
-          "description": "Thinking effort level for V4 models. 'high' for most tasks, 'max' for complex agent tasks. Only applies when thinking is enabled."
-        },
-        "deepseek-copilot.thinking": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable thinking mode (chain-of-thought reasoning). Disable to save tokens on simple tasks; re-enables temperature and top_p support."
         },
         "deepseek-copilot.maxTokens": {
           "type": "number",

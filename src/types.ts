@@ -113,7 +113,7 @@ export const MODELS: ModelDefinition[] = [
 		name: 'DeepSeek V4 Flash',
 		family: 'deepseek',
 		version: 'v4',
-		detail: 'Fast, general-purpose model with thinking & tool support',
+		detail: 'Fast, general-purpose model',
 		maxInputTokens: 1048576,
 		maxOutputTokens: 393216,
 		capabilities: {
@@ -128,7 +128,7 @@ export const MODELS: ModelDefinition[] = [
 		name: 'DeepSeek V4 Pro',
 		family: 'deepseek',
 		version: 'v4',
-		detail: 'Most capable reasoning model with thinking & tool support',
+		detail: 'Most capable reasoning model',
 		maxInputTokens: 1048576,
 		maxOutputTokens: 393216,
 		capabilities: {

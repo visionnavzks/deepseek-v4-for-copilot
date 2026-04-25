@@ -15,12 +15,73 @@ import {
 	setVisionProxyModel,
 } from './vision';
 
+const API_KEY_REQUIRED_DETAIL = 'Please run DeepSeek: Set API Key to configure.';
+
+/**
+ * NOTE: Non-public API surface.
+ *
+ * The fields below (`configurationSchema` on chat info, `modelConfiguration`
+ * on response options, plus `isUserSelectable` / `statusIcon`) are not part
+ * of the stable `vscode.LanguageModelChat*` typings yet. They are the same
+ * shape currently consumed by GitHub Copilot Chat to render a per-model
+ * config dropdown in the model picker (see Copilot Chat's built-in
+ * providers, e.g. its OpenAI/Anthropic providers using `reasoningEffort`).
+ *
+ * If/when VS Code stabilizes these as proposed API, switch to the official
+ * types and drop the casts below.
+ */
+const THINKING_EFFORT_CONFIGURATION_SCHEMA = {
+	properties: {
+		reasoningEffort: {
+			type: 'string',
+			title: 'Thinking Effort',
+			enum: ['none', 'high', 'max'],
+			enumItemLabels: ['None', 'High', 'Max'],
+			enumDescriptions: [
+				'Disable thinking for faster responses',
+				'Recommended for most tasks',
+				'Maximum reasoning depth for complex agent tasks',
+			],
+			default: 'high',
+			group: 'navigation',
+		},
+	},
+} as const;
+
+type ThinkingEffort = 'none' | 'high' | 'max';
+
+/**
+ * Non-public: Copilot Chat passes the user's per-model picker selections
+ * back to providers via `modelConfiguration` (newer hosts) / `configuration`
+ * (older hosts) on the response options. Both names are checked at runtime.
+ */
+type ModelConfigurationOptions = vscode.ProvideLanguageModelChatResponseOptions & {
+	readonly modelConfiguration?: Record<string, unknown>;
+	readonly configuration?: Record<string, unknown>;
+};
+
+/**
+ * Non-public: extra fields on `LanguageModelChatInformation` consumed by the
+ * Copilot Chat model picker — `isUserSelectable` controls picker visibility,
+ * `statusIcon` renders a leading icon (e.g. warning when key missing), and
+ * `configurationSchema` declares the per-model dropdown schema.
+ */
+type ModelPickerChatInformation = vscode.LanguageModelChatInformation & {
+	readonly isUserSelectable: boolean;
+	readonly statusIcon?: vscode.ThemeIcon;
+	readonly configurationSchema?: typeof THINKING_EFFORT_CONFIGURATION_SCHEMA;
+};
+
 /**
  * DeepSeek Chat Provider — implements vscode.LanguageModelChatProvider so
  * DeepSeek V4 models appear directly in the Copilot Chat model picker.
  */
 export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 	private readonly authManager: AuthManager;
+	private readonly onDidChangeLanguageModelChatInformationEmitter = new vscode.EventEmitter<void>();
+	private isActive = true;
+
+	readonly onDidChangeLanguageModelChatInformation = this.onDidChangeLanguageModelChatInformationEmitter.event;
 
 	/** reasoning text → tool_call IDs cache. */
 	private readonly reasoningCache = new Map<string, ReasoningEntry>();
@@ -37,14 +98,27 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 	constructor(context: vscode.ExtensionContext) {
 		this.authManager = new AuthManager(context);
 
-		// Reset vision model cache when settings change
 		context.subscriptions.push(
+			this.onDidChangeLanguageModelChatInformationEmitter,
+			// Settings-based fallback API key + vision model changes.
 			vscode.workspace.onDidChangeConfiguration((e) => {
+				if (e.affectsConfiguration('deepseek-copilot.apiKey')) {
+					this.onDidChangeLanguageModelChatInformationEmitter.fire();
+				}
+
 				if (
 					e.affectsConfiguration('deepseek-copilot.visionModel') ||
 					e.affectsConfiguration('deepseek-copilot.visionFallbackIds')
 				) {
 					this.vision.reset();
+				}
+			}),
+			// Multi-window: SecretStorage changes don't fire onDidChangeConfiguration.
+			// When another window sets/clears the API key, refresh this window's
+			// model picker so the warning state stays in sync.
+			context.secrets.onDidChange((e) => {
+				if (e.key === 'deepseek-copilot.apiKey') {
+					this.onDidChangeLanguageModelChatInformationEmitter.fire();
 				}
 			}),
 		);
@@ -53,16 +127,36 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 	// ---- Public commands ----
 
 	async configureApiKey(): Promise<void> {
-		await this.authManager.promptForApiKey();
+		const saved = await this.authManager.promptForApiKey();
+		if (saved) {
+			this.onDidChangeLanguageModelChatInformationEmitter.fire();
+		}
 	}
 
 	async clearApiKey(): Promise<void> {
 		await this.authManager.deleteApiKey();
+		this.onDidChangeLanguageModelChatInformationEmitter.fire();
 		vscode.window.showInformationMessage('DeepSeek API key removed.');
 	}
 
 	async hasApiKey(): Promise<boolean> {
 		return this.authManager.hasApiKey();
+	}
+
+	async prepareForDeactivate(): Promise<void> {
+		this.isActive = false;
+		this.onDidChangeLanguageModelChatInformationEmitter.fire();
+
+		// Force the host to re-pull `provideLanguageModelChatInformation` synchronously
+		// before the extension unloads. With `isActive = false` we now return [],
+		// which makes Copilot Chat drop DeepSeek models from the picker immediately
+		// instead of leaving stale entries behind after deactivate. The returned
+		// model list itself is unused — we only call this for its side effect.
+		try {
+			await vscode.lm.selectChatModels({ vendor: 'deepseek' });
+		} catch (error) {
+			logger.warn('Failed to refresh DeepSeek models during deactivate', error);
+		}
 	}
 
 	/** See provider/vision.ts */
@@ -75,21 +169,15 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 	// ---- LanguageModelChatProvider ----
 
 	async provideLanguageModelChatInformation(
-		options: vscode.PrepareLanguageModelChatModelOptions,
+		_options: vscode.PrepareLanguageModelChatModelOptions,
 		_token: vscode.CancellationToken,
 	): Promise<vscode.LanguageModelChatInformation[]> {
-		const hasKey = await this.authManager.hasApiKey();
-		if (!hasKey) {
-			if (options.silent) {
-				return [];
-			}
-			const configured = await this.authManager.promptForApiKey();
-			if (!configured) {
-				return [];
-			}
+		if (!this.isActive) {
+			return [];
 		}
 
-		return MODELS.map(toChatInfo);
+		const hasKey = await this.authManager.hasApiKey();
+		return MODELS.map((model) => toChatInfo(model, hasKey));
 	}
 
 	async provideLanguageModelChatResponse(
@@ -111,8 +199,7 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 
 		const modelDef = findModel(modelInfo.id);
 		const isThinkingModel = modelDef?.capabilities.thinking ?? false;
-		const thinkingEnabled = isThinkingModel && this.authManager.getThinkingEnabled();
-		const thinkingEffort = this.authManager.getThinkingEffort();
+		const thinkingEffort = getConfiguredThinkingEffort(options as ModelConfigurationOptions);
 		const maxTokens = this.authManager.getMaxTokens();
 
 		// Heuristic: detect conversation start to clear stale cache.
@@ -152,8 +239,12 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 					max_tokens: maxTokens,
 					...(isThinkingModel
 						? {
-								thinking: { type: thinkingEnabled ? 'enabled' as const : 'disabled' as const },
-								...(thinkingEnabled ? { reasoning_effort: thinkingEffort } : {}),
+								thinking: {
+									type: thinkingEffort === 'none' ? 'disabled' as const : 'enabled' as const,
+								},
+								...(thinkingEffort === 'none'
+									? {}
+									: { reasoning_effort: thinkingEffort }),
 							}
 						: {}),
 				},
@@ -283,18 +374,42 @@ function findModel(id: string): ModelDefinition | undefined {
 	return MODELS.find((m) => m.id === id);
 }
 
-function toChatInfo(m: ModelDefinition): vscode.LanguageModelChatInformation {
+function toChatInfo(
+	m: ModelDefinition,
+	hasApiKey: boolean,
+): ModelPickerChatInformation {
 	return {
 		id: m.id,
 		name: m.name,
 		family: m.family,
 		version: m.version,
-		detail: m.detail,
+		detail: hasApiKey ? m.detail : API_KEY_REQUIRED_DETAIL,
+		tooltip: hasApiKey ? undefined : API_KEY_REQUIRED_DETAIL,
+		statusIcon: hasApiKey ? undefined : new vscode.ThemeIcon('warning'),
 		maxInputTokens: m.maxInputTokens,
 		maxOutputTokens: m.maxOutputTokens,
+		isUserSelectable: true,
 		capabilities: {
 			toolCalling: m.capabilities.toolCalling,
 			imageInput: m.capabilities.imageInput,
 		},
+		...(m.capabilities.thinking
+			? { configurationSchema: THINKING_EFFORT_CONFIGURATION_SCHEMA }
+			: {}),
 	};
+}
+
+function getConfiguredThinkingEffort(options: ModelConfigurationOptions): ThinkingEffort {
+	const configuredEffort = options.modelConfiguration?.reasoningEffort
+		?? options.configuration?.reasoningEffort;
+
+	if (configuredEffort === 'none') {
+		return 'none';
+	}
+
+	if (configuredEffort === 'high') {
+		return 'high';
+	}
+
+	return configuredEffort === 'max' ? 'max' : 'high';
 }

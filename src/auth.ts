@@ -91,22 +91,6 @@ export class AuthManager {
 	}
 
 	/**
-	 * Get thinking effort from settings.
-	 */
-	getThinkingEffort(): 'high' | 'max' {
-		const config = vscode.workspace.getConfiguration('deepseek-copilot');
-		return config.get<string>('thinkingEffort') === 'max' ? 'max' : 'high';
-	}
-
-	/**
-	 * Get whether thinking mode is enabled.
-	 */
-	getThinkingEnabled(): boolean {
-		const config = vscode.workspace.getConfiguration('deepseek-copilot');
-		return config.get<boolean>('thinking', true);
-	}
-
-	/**
 	 * Get max tokens limit (0 = no limit).
 	 */
 	getMaxTokens(): number | undefined {

@@ -1,6 +1,8 @@
 .vscode/**
 src/**
 out/**/*.map
+out/**/*.d.ts
+out/**/*.d.ts.map
 tsconfig.json
 .github/**
 .gitignore
@@ -10,5 +12,7 @@ tsconfig.json
 dist/**
 package-lock.json
 .DS_Store
+.env*
+!.env.example
 vscode.proposed.languageModelThinkingPart.d.ts
 

@@ -8,6 +8,10 @@
 
 **Pick DeepSeek V4 from the Copilot Chat model picker — and keep everything else Copilot already gives you.**
 
+<p align="center">
+  <img src="resources/screenshots/01-picker.png" alt="DeepSeek V4 Pro and Flash in the Copilot Chat model picker, with the per-model Thinking Effort dropdown (None / High / Max)" width="800">
+</p>
+
 Love DeepSeek's price-performance but don't want to give up GitHub Copilot's agent mode, tool calling, and polished UI? This extension drops **DeepSeek V4 Pro & Flash** straight into the Copilot Chat model selector — with **vision**, **thinking mode**, and your own API key.
 
 ## Why this extension?
@@ -25,8 +29,12 @@ Both models show up alongside GPT-4o, Claude, and friends in Copilot Chat's mode
 ### Transparent Vision Proxy
 DeepSeek V4 is text-only. Drop a screenshot into chat and this extension automatically hands the image to another installed Copilot model (Claude, GPT-4o, whatever you've got), gets a description, and feeds that back to DeepSeek. **Zero config** — just pick your preferred vision model once.
 
+<p align="center">
+  <img src="resources/screenshots/03-vision.png" alt="Dropping an image into Copilot Chat and DeepSeek responding to it via the vision proxy" width="800">
+</p>
+
 ### Thinking Mode with Reasoning Effort Control
-Full support for DeepSeek V4's `reasoning_content`. Toggle thinking on/off per your needs — on for complex refactors, off to save tokens on quick edits. Choose between `high` (balanced) and `max` (deep reasoning for hard agent tasks).
+Full support for DeepSeek V4's `reasoning_content`. Use Copilot Chat's native model picker menu to choose `none` (off), `high` (balanced, default), or `max` (deep reasoning for hard agent tasks).
 
 ### Inherits Every Copilot Capability
 Because this plugs into Copilot's native provider API, you get the full stack for free:
@@ -34,6 +42,10 @@ Because this plugs into Copilot's native provider API, you get the full stack fo
 - **Tool calling** — file edits, terminal, workspace search, Git, tests
 - **Instructions & skills** — all your `.instructions.md`, `AGENTS.md`, and skills just work
 - **Prompt caching stats** — DeepSeek's cache hit rate logged in the output channel so you can see the savings
+
+<p align="center">
+  <img src="resources/screenshots/04-agent.png" alt="DeepSeek V4 Pro running Copilot's agent mode with tool calls" width="800">
+</p>
 
 ### Secure by Default
 API key lives in VS Code's `SecretStorage` (OS keychain on macOS / Windows / Linux). Never in `settings.json`, never in your Git history.
@@ -64,18 +76,18 @@ Pure VS Code API + Node.js built-ins. No Python, no Docker, no local proxy serve
 | **DeepSeek V4 Flash** | Fast everyday coding, quick edits, cheap iteration |
 | **DeepSeek V4 Pro** | Complex refactors, agent tasks, deep reasoning |
 
-Both support thinking mode, tool calling, and 1M token context.
+Both support optional thinking mode, tool calling, and 1M token context.
 
 ## Settings
 
 | Setting | Default | Description |
 |---|---|---|
 | `deepseek-copilot.baseUrl` | `https://api.deepseek.com` | API endpoint — change for self-hosted / proxied deployments |
-| `deepseek-copilot.thinking` | `true` | Enable thinking mode (chain-of-thought). Disable for simple tasks to save tokens |
-| `deepseek-copilot.thinkingEffort` | `high` | `high` for most tasks, `max` for complex agent work |
 | `deepseek-copilot.maxTokens` | `0` | Max output tokens (`0` = no limit). Useful for cost control |
 | `deepseek-copilot.visionModel` | *(auto)* | Which Copilot model to proxy images through |
 | `deepseek-copilot.visionPrompt` | *(built-in)* | Prompt used to describe image attachments |
+
+Thinking Effort is configured from Copilot Chat's model picker for each DeepSeek model.
 
 ## Compared to alternatives
 

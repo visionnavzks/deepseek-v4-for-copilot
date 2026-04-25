@@ -17,7 +17,7 @@ export async function resolveImageMessages(
 	getModel: () => Promise<vscode.LanguageModelChat | undefined>,
 ): Promise<readonly vscode.LanguageModelChatRequestMessage[]> {
 	const hasImages = messages.some((m) =>
-		m.content.some((p) => p instanceof vscode.LanguageModelDataPart),
+		m.content.some((p) => isImageDataPart(p)),
 	);
 	if (!hasImages) {
 		return messages;
@@ -28,7 +28,7 @@ export async function resolveImageMessages(
 		logger.warn('No vision model available; images will be dropped.');
 		return messages.map((m) => {
 			const filtered = (m.content as readonly vscode.LanguageModelInputPart[]).filter(
-				(p) => !(p instanceof vscode.LanguageModelDataPart),
+				(p) => !isImageDataPart(p),
 			);
 			return { role: m.role, content: filtered } as unknown as vscode.LanguageModelChatRequestMessage;
 		});
@@ -41,7 +41,7 @@ export async function resolveImageMessages(
 		const otherParts: vscode.LanguageModelInputPart[] = [];
 
 		for (const part of message.content as readonly vscode.LanguageModelInputPart[]) {
-			if (part instanceof vscode.LanguageModelDataPart) {
+			if (isImageDataPart(part)) {
 				imageParts.push(part);
 			} else {
 				otherParts.push(part);
@@ -163,6 +163,10 @@ function getConfiguredVisionModelId(): string | undefined {
 	const config = vscode.workspace.getConfiguration('deepseek-copilot');
 	const id = config.get<string>('visionModel', '');
 	return id.trim() || undefined;
+}
+
+function isImageDataPart(part: unknown): part is vscode.LanguageModelDataPart {
+	return part instanceof vscode.LanguageModelDataPart && part.mimeType.startsWith('image/');
 }
 
 function getVisionPrompt(): string {
