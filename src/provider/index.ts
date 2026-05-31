@@ -1,13 +1,13 @@
 import vscode from 'vscode';
 import { AuthManager } from '../auth';
 import { getStabilizeToolListEnabled } from '../config';
-import { MODELS } from '../consts';
+import { MODELS, resolveProviderId, type ProviderId } from '../consts';
 import { t } from '../i18n';
 import { logger } from '../logger';
 import {
-	classifyProviderRequest,
-	createCacheDiagnosticsRecorder,
-	dumpProviderInput,
+    classifyProviderRequest,
+    createCacheDiagnosticsRecorder,
+    dumpProviderInput,
 } from './debug';
 import { toChatInfo } from './models';
 import { prepareChatRequest } from './request';
@@ -49,7 +49,10 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 			this.onDidChangeLanguageModelChatInformationEmitter,
 			// Settings-based fallback API key + vision model changes.
 			vscode.workspace.onDidChangeConfiguration((e) => {
-				if (e.affectsConfiguration('deepseek-copilot.apiKey')) {
+				if (
+					e.affectsConfiguration('deepseek-copilot.apiKey') ||
+					e.affectsConfiguration('deepseek-copilot.apiKeys')
+				) {
 					this.onDidChangeLanguageModelChatInformationEmitter.fire();
 				}
 
@@ -58,10 +61,13 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 				}
 			}),
 			// Multi-window: SecretStorage changes don't fire onDidChangeConfiguration.
-			// When another window sets/clears the API key, refresh this window's
+			// When another window sets/clears an API key, refresh this window's
 			// model picker so the warning state stays in sync.
 			context.secrets.onDidChange((e) => {
-				if (e.key === 'deepseek-copilot.apiKey') {
+				if (
+					e.key === 'deepseek-copilot.apiKey' ||
+					e.key.startsWith('deepseek-copilot.apiKey.')
+				) {
 					this.onDidChangeLanguageModelChatInformationEmitter.fire();
 				}
 			}),
@@ -77,14 +83,27 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 		}
 	}
 
+	async configureApiKeyForProvider(providerId: ProviderId): Promise<void> {
+		const saved = await this.authManager.promptForProviderApiKey(providerId);
+		if (saved) {
+			this.onDidChangeLanguageModelChatInformationEmitter.fire();
+		}
+	}
+
 	async clearApiKey(): Promise<void> {
 		await this.authManager.deleteApiKey();
 		this.onDidChangeLanguageModelChatInformationEmitter.fire();
 		vscode.window.showInformationMessage(t('auth.removed'));
 	}
 
+	async clearApiKeyForProvider(providerId: ProviderId): Promise<void> {
+		await this.authManager.deleteApiKeyForProvider(providerId);
+		this.onDidChangeLanguageModelChatInformationEmitter.fire();
+		vscode.window.showInformationMessage(t('auth.removed'));
+	}
+
 	async hasApiKey(): Promise<boolean> {
-		return this.authManager.hasApiKey();
+		return this.authManager.hasAnyApiKey();
 	}
 
 	/** Force Copilot Chat to re-query model information (including configurationSchema). */
@@ -123,8 +142,14 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 			return [];
 		}
 
-		const hasKey = await this.authManager.hasApiKey();
-		return MODELS.map((model) => toChatInfo(model, hasKey));
+		return Promise.all(
+			MODELS.map(async (model) => {
+				const hasKey = await this.authManager.hasApiKeyForProvider(
+					resolveProviderId(model.family),
+				);
+				return toChatInfo(model, hasKey);
+			}),
+		);
 	}
 
 	async provideLanguageModelChatResponse(

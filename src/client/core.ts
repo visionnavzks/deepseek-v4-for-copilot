@@ -119,8 +119,9 @@ export class DeepSeekClient {
 							continue;
 						}
 
-						// Thinking content → report with correct field name so VS Code renders collapsible blocks
-						const reasoning = choice.delta.reasoning_content;
+						// Thinking content → report with correct field name so VS Code renders collapsible blocks.
+						// DeepSeek returns `reasoning_content`; OpenAI-compatible / Go returns `reasoning_text`.
+						const reasoning = choice.delta.reasoning_content ?? choice.delta.reasoning_text;
 						if (reasoning) {
 							callbacks.onThinking(reasoning);
 						}

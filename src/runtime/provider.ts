@@ -1,4 +1,5 @@
 import vscode from 'vscode';
+import { PROVIDER_IDS } from '../consts';
 import { logger } from '../logger';
 import { DeepSeekChatProvider } from '../provider';
 
@@ -13,6 +14,19 @@ export async function registerProvider(
 		vscode.commands.registerCommand('deepseek-copilot.setVisionModel', () =>
 			provider.setVisionProxyModel(),
 		),
+
+		// Per-provider key commands
+		...PROVIDER_IDS.map((pid) =>
+			vscode.commands.registerCommand(`deepseek-copilot.setApiKey.${pid}`, () =>
+				provider.configureApiKeyForProvider(pid),
+			),
+		),
+		...PROVIDER_IDS.map((pid) =>
+			vscode.commands.registerCommand(`deepseek-copilot.clearApiKey.${pid}`, () =>
+				provider.clearApiKeyForProvider(pid),
+			),
+		),
+
 		vscode.lm.registerLanguageModelChatProvider('deepseek', provider),
 	);
 

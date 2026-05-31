@@ -65,6 +65,7 @@ export interface DeepSeekStreamChunk {
 			role?: string;
 			content?: string;
 			reasoning_content?: string;
+			reasoning_text?: string;
 			tool_calls?: Array<{
 				index: number;
 				id?: string;
@@ -107,4 +108,97 @@ export interface ModelDefinition {
 		thinking: boolean;
 	};
 	requiresThinkingParam: boolean;
+	/** Model-level base URL override. When set, bypasses the global baseUrl setting. */
+	baseUrl?: string;
+	/**
+	 * Whether the API returns `reasoning_content` (DeepSeek native) vs `reasoning_text`
+	 * (OpenAI-compatible / Go). Controls which SSE field the client parses.
+	 */
+	nativeReasoningContent?: boolean;
+}
+
+// ---- Anthropic Messages protocol types ----
+
+export interface AnthropicRequest {
+	model: string;
+	max_tokens: number;
+	messages: AnthropicMessage[];
+	system?: string;
+	stream?: boolean;
+	temperature?: number;
+	top_p?: number;
+	thinking?: { type: 'enabled'; budget_tokens: number } | { type: 'disabled' };
+	tools?: AnthropicTool[];
+	tool_choice?:
+		| { type: 'auto' }
+		| { type: 'none' }
+		| { type: 'any' }
+		| { type: 'tool'; name: string };
+}
+
+export interface AnthropicMessage {
+	role: 'user' | 'assistant';
+	content: string | AnthropicContentBlock[];
+}
+
+export type AnthropicContentBlock =
+	| { type: 'text'; text: string }
+	| { type: 'thinking'; thinking: string; signature?: string }
+	| { type: 'tool_use'; id: string; name: string; input: Record<string, unknown> }
+	| { type: 'tool_result'; tool_use_id: string; content: string | AnthropicContentBlock[] };
+
+export interface AnthropicTool {
+	name: string;
+	description?: string;
+	input_schema?: Record<string, unknown>;
+}
+
+// ---- Anthropic SSE event types ----
+
+export interface AnthropicSSEEvent {
+	type: string;
+	[key: string]: unknown;
+}
+
+export interface AnthropicMessageStartEvent extends AnthropicSSEEvent {
+	type: 'message_start';
+	message: {
+		id: string;
+		type: 'message';
+		role: 'assistant';
+		content: [];
+		model: string;
+		stop_reason: null;
+		usage: { input_tokens: number; output_tokens: number };
+	};
+}
+
+export interface AnthropicContentBlockStartEvent extends AnthropicSSEEvent {
+	type: 'content_block_start';
+	index: number;
+	content_block: { type: string; text?: string; name?: string; id?: string };
+}
+
+export interface AnthropicContentBlockDeltaEvent extends AnthropicSSEEvent {
+	type: 'content_block_delta';
+	index: number;
+	delta:
+		| { type: 'text_delta'; text: string }
+		| { type: 'thinking_delta'; thinking: string }
+		| { type: 'input_json_delta'; partial_json: string };
+}
+
+export interface AnthropicContentBlockStopEvent extends AnthropicSSEEvent {
+	type: 'content_block_stop';
+	index: number;
+}
+
+export interface AnthropicMessageDeltaEvent extends AnthropicSSEEvent {
+	type: 'message_delta';
+	delta: { stop_reason: string | null; stop_sequence: null };
+	usage: { output_tokens: number };
+}
+
+export interface AnthropicMessageStopEvent extends AnthropicSSEEvent {
+	type: 'message_stop';
 }

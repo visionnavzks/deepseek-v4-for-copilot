@@ -85,7 +85,13 @@ function buildThinkingEffortSchema() {
 }
 
 function resolveDetailKey(m: ModelDefinition): string | undefined {
-	const suffix = m.id.startsWith('deepseek-v4-') ? m.id.slice('deepseek-v4-'.length) : m.id;
+	let suffix = m.id;
+	if (suffix.startsWith('opencode-go-')) {
+		suffix = suffix.slice('opencode-go-'.length);
+	}
+	if (suffix.startsWith('deepseek-v4-')) {
+		suffix = suffix.slice('deepseek-v4-'.length);
+	}
 	const key = `model.${suffix}.detail`;
 	const translated = t(key);
 	return translated !== key ? key : undefined;

@@ -14,6 +14,7 @@ import {
 	type ReplayMarkerMetadata,
 } from './replay';
 import type { PreparedChatRequest } from './request';
+import { streamPreparedRequest } from './request';
 
 interface ResponseStreamState {
 	accumulatedReasoning: string;
@@ -49,51 +50,46 @@ export function streamChatCompletion({
 	};
 	const cancelListener = observeCancellationToken(token, prepared.cacheDiagnostics);
 
-	return prepared.client
-		.streamChatCompletion(
-			prepared.request,
-			{
-				onContent: (content: string) => {
-					reportInitialResponseNoticeOnce(progress, state, initialResponseNotice);
-					progress.report(new vscode.LanguageModelTextPart(content));
-				},
-
-				onThinking: (text: string) => {
-					reportInitialResponseNoticeOnce(progress, state, initialResponseNotice);
-					handleThinking(text, state, progress);
-				},
-
-				onToolCall: (toolCall: DeepSeekToolCall) => {
-					reportInitialResponseNoticeOnce(progress, state, initialResponseNotice);
-					handleToolCall(toolCall, state, progress);
-				},
-
-				onError: (error: Error) => {
-					throw createUserFacingError(error);
-				},
-
-				onDone: () => {
-					reportReplayMarkerOnce(prepared, progress, state, 'done');
-					finalizeReplayDiagnostics(
-						prepared.trailingToolResultIds,
-						state,
-						prepared.cacheDiagnostics,
-					);
-				},
-
-				onUsage: (usage) => {
-					const charsPerToken = updateCharsPerToken(
-						prepared.totalRequestChars,
-						usage,
-						getCharsPerToken(),
-					);
-					setCharsPerToken(charsPerToken);
-					prepared.cacheDiagnostics.onUsage(usage, charsPerToken);
-					reportCopilotContextUsage(progress, usage);
-				},
+	return streamPreparedRequest(
+		prepared,
+		{
+			onContent: (content: string) => {
+				reportInitialResponseNoticeOnce(progress, state, initialResponseNotice);
+				progress.report(new vscode.LanguageModelTextPart(content));
 			},
-			token,
-		)
+
+			onThinking: (text: string) => {
+				reportInitialResponseNoticeOnce(progress, state, initialResponseNotice);
+				handleThinking(text, state, progress);
+			},
+
+			onToolCall: (toolCall: DeepSeekToolCall) => {
+				reportInitialResponseNoticeOnce(progress, state, initialResponseNotice);
+				handleToolCall(toolCall, state, progress);
+			},
+
+			onError: (error: Error) => {
+				throw createUserFacingError(error);
+			},
+
+			onDone: () => {
+				reportReplayMarkerOnce(prepared, progress, state, 'done');
+				finalizeReplayDiagnostics(prepared.trailingToolResultIds, state, prepared.cacheDiagnostics);
+			},
+
+			onUsage: (usage) => {
+				const charsPerToken = updateCharsPerToken(
+					prepared.totalRequestChars,
+					usage,
+					getCharsPerToken(),
+				);
+				setCharsPerToken(charsPerToken);
+				prepared.cacheDiagnostics.onUsage(usage, charsPerToken);
+				reportCopilotContextUsage(progress, usage);
+			},
+		},
+		token,
+	)
 		.then(undefined, (error) => {
 			reportSkippedReplayMarkerIfNeeded(
 				prepared,

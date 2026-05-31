@@ -21,11 +21,27 @@ const zh: Translations = {
 	// Model descriptions
 	'model.flash.detail': '快速高效',
 	'model.pro.detail': '深度推理',
+	'model.mimo-v2.5.detail': '平衡推理与速度',
+	'model.mimo-v2.5-pro.detail': '增强型 MiMo 推理',
+	'model.glm-5.1.detail': '智谱 GLM 编程模型',
+	'model.glm-5.detail': '智谱 GLM 通用模型',
+	'model.kimi-k2.5.detail': '月之暗面 Kimi 编程模型',
+	'model.kimi-k2.6.detail': '月之暗面 Kimi 最新模型',
+	'model.minimax-m2.7.detail': 'MiniMax M2.7',
+	'model.minimax-m2.5.detail': 'MiniMax M2.5',
+	'model.qwen3.7-max.detail': '通义千问 Qwen3.7 Max',
+	'model.qwen3.6-plus.detail': '通义千问 Qwen3.6 Plus',
 
 	// API Key
 	'auth.apiKeyRequiredDetail': '请先配置 API Key',
 	'auth.prompt': '请输入 DeepSeek API Key 或兼容服务令牌。官方 DeepSeek Key 通常以 "sk-" 开头。',
 	'auth.placeholder': 'sk-... 或服务商令牌',
+	'auth.prompt.deepseek': '请输入 DeepSeek API Key。通常以 "sk-" 开头。',
+	'auth.placeholder.deepseek': 'sk-...',
+	'auth.prompt.opencode-go': '请输入 OpenCode Go API Key。',
+	'auth.placeholder.opencode-go': 'opencode-go token',
+	'auth.prompt.xiaomi-mimo': '请输入小米 MiMo API Key。',
+	'auth.placeholder.xiaomi-mimo': 'xiaomi-mimo token',
 	'auth.emptyValidation': 'API Key 不能为空',
 	'auth.saved': 'API Key 已安全保存。',
 	'auth.removed': 'API Key 已移除。',
@@ -102,6 +118,16 @@ const en: Translations = {
 	// Model descriptions
 	'model.flash.detail': 'Fast, general-purpose model',
 	'model.pro.detail': 'Most capable reasoning model',
+	'model.mimo-v2.5.detail': 'Balanced reasoning and speed',
+	'model.mimo-v2.5-pro.detail': 'Enhanced MiMo reasoning',
+	'model.glm-5.1.detail': 'Zhipu GLM coding model',
+	'model.glm-5.detail': 'Zhipu GLM general model',
+	'model.kimi-k2.5.detail': 'Moonshot Kimi coding model',
+	'model.kimi-k2.6.detail': 'Moonshot Kimi latest model',
+	'model.minimax-m2.7.detail': 'MiniMax M2.7',
+	'model.minimax-m2.5.detail': 'MiniMax M2.5',
+	'model.qwen3.7-max.detail': 'Qwen3.7 Max',
+	'model.qwen3.6-plus.detail': 'Qwen3.6 Plus',
 
 	// API Key
 	'auth.apiKeyRequiredDetail': 'Please run DeepSeek: Set API Key to configure.',
@@ -113,6 +139,12 @@ const en: Translations = {
 	'auth.removed': 'DeepSeek API key removed.',
 	'auth.notConfigured':
 		'DeepSeek API key not configured. Run "DeepSeek: Set API Key" from the Command Palette.',
+	'auth.prompt.deepseek': 'Enter your DeepSeek API key. Official keys usually start with "sk-".',
+	'auth.placeholder.deepseek': 'sk-...',
+	'auth.prompt.opencode-go': 'Enter your OpenCode Go API key.',
+	'auth.placeholder.opencode-go': 'opencode-go token',
+	'auth.prompt.xiaomi-mimo': 'Enter your Xiaomi MiMo API key.',
+	'auth.placeholder.xiaomi-mimo': 'xiaomi-mimo token',
 
 	// Thinking Effort
 	'status.thinking': 'Thinking Effort',

@@ -1,3 +1,4 @@
+export { AnthropicClient } from './anthropic';
 export { DeepSeekClient } from './core';
 export {
 	createHttpError,

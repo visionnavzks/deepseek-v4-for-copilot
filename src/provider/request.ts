@@ -1,17 +1,22 @@
 import vscode from 'vscode';
 import { AuthManager } from '../auth';
-import { DeepSeekClient } from '../client';
-import { getApiModelId, getBaseUrl, getMaxTokens } from '../config';
+import { AnthropicClient, DeepSeekClient } from '../client';
+import { getApiModelId, getBaseUrlForModel, getMaxTokens } from '../config';
 import { MODELS } from '../consts';
 import { t } from '../i18n';
-import type { DeepSeekRequest } from '../types';
-import { convertMessages, countMessageChars } from './convert';
+import type { AnthropicRequest, DeepSeekRequest, StreamCallbacks } from '../types';
 import {
-	classifyDeepSeekRequest,
-	dumpDeepSeekRequest,
-	type CacheDiagnosticsRecorder,
-	type CacheDiagnosticsRun,
-	type RequestKind,
+    convertMessages,
+    convertMessagesAnthropic,
+    convertToolsAnthropic,
+    countMessageChars,
+} from './convert';
+import {
+    classifyDeepSeekRequest,
+    dumpDeepSeekRequest,
+    type CacheDiagnosticsRecorder,
+    type CacheDiagnosticsRun,
+    type RequestKind,
 } from './debug';
 import { getConfiguredThinkingEffort, type ModelConfigurationOptions } from './models';
 import type { ReplayMarkerMetadata } from './replay';
@@ -19,9 +24,12 @@ import type { ConversationSegment } from './segment';
 import { collectTrailingToolResultIds, prepareRequestTools } from './tools/request';
 import { resolveImageMessages } from './vision/index';
 
+export type ChatClient =
+	| { kind: 'deepseek'; client: DeepSeekClient; request: DeepSeekRequest }
+	| { kind: 'anthropic'; client: AnthropicClient; request: AnthropicRequest };
+
 export interface PreparedChatRequest {
-	client: DeepSeekClient;
-	request: DeepSeekRequest;
+	chatClient: ChatClient;
 	isThinkingModel: boolean;
 	totalRequestChars: number;
 	trailingToolResultIds: string[];
@@ -44,6 +52,25 @@ export interface PrepareChatRequestOptions {
 	getVisionModel: () => Promise<vscode.LanguageModelChat | undefined>;
 }
 
+export function streamPreparedRequest(
+	prepared: PreparedChatRequest,
+	callbacks: StreamCallbacks,
+	token: vscode.CancellationToken,
+): Promise<void> {
+	if (prepared.chatClient.kind === 'anthropic') {
+		return prepared.chatClient.client.streamChatCompletion(
+			prepared.chatClient.request,
+			callbacks,
+			token,
+		);
+	}
+	return prepared.chatClient.client.streamChatCompletion(
+		prepared.chatClient.request,
+		callbacks,
+		token,
+	);
+}
+
 export async function prepareChatRequest({
 	authManager,
 	globalStorageUri,
@@ -55,44 +82,100 @@ export async function prepareChatRequest({
 	cacheDiagnostics,
 	getVisionModel,
 }: PrepareChatRequestOptions): Promise<PreparedChatRequest> {
-	const apiKey = await authManager.getApiKey();
+	const apiKey = await authManager.getApiKeyForModel(modelInfo.id);
 	if (!apiKey) {
 		throw new Error(t('auth.notConfigured'));
 	}
 
-	const client = new DeepSeekClient(getBaseUrl(), apiKey);
 	const modelDef = MODELS.find((m) => m.id === modelInfo.id);
+	const baseUrl = getBaseUrlForModel(modelDef);
 	const isThinkingModel = modelDef?.capabilities.thinking ?? false;
 	const thinkingEffort = getConfiguredThinkingEffort(options as ModelConfigurationOptions);
 	const maxTokens = getMaxTokens();
 
 	const visionResolution = await resolveImageMessages(messages, token, getVisionModel);
 	const resolvedMessages = visionResolution.messages;
-	const deepseekMessages = convertMessages(resolvedMessages, isThinkingModel);
 	const tools = prepareRequestTools(modelDef?.capabilities.toolCalling, options);
 
-	const totalRequestChars = countMessageChars(deepseekMessages);
-	const request: DeepSeekRequest = {
-		model: getApiModelId(modelInfo.id),
-		messages: deepseekMessages,
-		stream: true,
-		tools,
-		tool_choice: tools && tools.length > 0 ? ('auto' as const) : undefined,
-		max_tokens: maxTokens,
-		...(isThinkingModel
-			? {
-					thinking: {
-						type: thinkingEffort === 'none' ? ('disabled' as const) : ('enabled' as const),
-					},
-					...(thinkingEffort === 'none' ? {} : { reasoning_effort: thinkingEffort }),
-				}
-			: {}),
-	};
+	const isAnthropicFamily = modelDef?.family === 'opencode-go-anthropic';
+
+	let chatClient: ChatClient;
+	let deepseekMessages: ReturnType<typeof convertMessages>;
+	let totalRequestChars: number;
+
+	if (isAnthropicFamily) {
+		// ---- Anthropic Messages protocol path ----
+		const { system, anthropicMessages: anthMessages } = convertMessagesAnthropic(resolvedMessages);
+		const anthTools = convertToolsAnthropic(options.tools);
+
+		const thinkingBudget = thinkingEffort === 'max' ? 32768 : thinkingEffort === 'high' ? 16384 : 0;
+
+		const request: AnthropicRequest = {
+			model: getApiModelId(modelInfo.id),
+			max_tokens: maxTokens || 16384,
+			messages: anthMessages,
+			stream: true,
+			...(system ? { system } : {}),
+			...(isThinkingModel && thinkingEffort !== 'none'
+				? { thinking: { type: 'enabled', budget_tokens: thinkingBudget } }
+				: isThinkingModel
+					? { thinking: { type: 'disabled' } }
+					: {}),
+			...(anthTools && anthTools.length > 0
+				? { tools: anthTools, tool_choice: { type: 'auto' } }
+				: {}),
+		};
+
+		const client = new AnthropicClient(baseUrl, apiKey);
+		chatClient = { kind: 'anthropic', client, request };
+		// Approximate char count from Anthropic messages for calibration
+		totalRequestChars = anthMessages.reduce((acc, m) => {
+			if (typeof m.content === 'string') return acc + m.content.length;
+			return acc + m.content.reduce((a, b) => a + ('text' in b ? b.text.length : 0), 0);
+		}, 0);
+		deepseekMessages = [];
+	} else {
+		// ---- OpenAI / DeepSeek compatible path ----
+		const client = new DeepSeekClient(baseUrl, apiKey);
+		const deepMsgs = convertMessages(resolvedMessages, isThinkingModel);
+
+		const request: DeepSeekRequest = {
+			model: getApiModelId(modelInfo.id),
+			messages: deepMsgs,
+			stream: true,
+			tools,
+			tool_choice: tools && tools.length > 0 ? ('auto' as const) : undefined,
+			max_tokens: maxTokens,
+			...(isThinkingModel
+				? {
+						...(modelDef?.family === 'deepseek'
+							? {
+									thinking: {
+										type: thinkingEffort === 'none' ? ('disabled' as const) : ('enabled' as const),
+									},
+								}
+							: {}),
+						...(thinkingEffort === 'none' ? {} : { reasoning_effort: thinkingEffort }),
+					}
+				: {}),
+		};
+
+		chatClient = { kind: 'deepseek', client, request };
+		deepseekMessages = deepMsgs;
+		totalRequestChars = countMessageChars(deepseekMessages);
+	}
+
+	// Debug/diagnostics expect a DeepSeekRequest — synthesize one for Anthropic models.
+	const debugRequest: DeepSeekRequest =
+		chatClient.kind === 'deepseek'
+			? chatClient.request
+			: { model: chatClient.request.model, messages: [], stream: true };
+
 	const requestKind = classifyDeepSeekRequest({
-		request,
+		request: debugRequest,
 		inputMessages: messages,
 	});
-	dumpDeepSeekRequest(request, {
+	dumpDeepSeekRequest(debugRequest, {
 		globalStorageUri,
 		segment,
 		requestKind,
@@ -108,7 +191,7 @@ export async function prepareChatRequest({
 	});
 
 	const diagnosticsRun = cacheDiagnostics.beginRequest({
-		request,
+		request: debugRequest,
 		segment,
 		requestKind,
 		vscodeModelId: modelInfo.id,
@@ -122,8 +205,7 @@ export async function prepareChatRequest({
 	});
 
 	return {
-		client,
-		request,
+		chatClient,
 		isThinkingModel,
 		totalRequestChars,
 		trailingToolResultIds: collectTrailingToolResultIds(deepseekMessages),

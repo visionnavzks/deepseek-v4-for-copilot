@@ -1,5 +1,6 @@
 import vscode from 'vscode';
 import { CONFIG_SECTION } from './consts';
+import type { ModelDefinition } from './types';
 
 export type DebugMode = 'minimal' | 'metadata' | 'verbose';
 
@@ -10,6 +11,15 @@ export type DebugMode = 'minimal' | 'metadata' | 'verbose';
 export function getBaseUrl(): string {
 	const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
 	return config.get<string>('baseUrl') || 'https://api.deepseek.com';
+}
+
+/**
+ * Resolve the base URL for a specific model.
+ * If the model defines its own `baseUrl` (e.g. OpenCode Go), use that.
+ * Otherwise, fall back to the global `getBaseUrl()` setting.
+ */
+export function getBaseUrlForModel(modelDef?: ModelDefinition): string {
+	return modelDef?.baseUrl || getBaseUrl();
 }
 
 /**

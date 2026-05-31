@@ -61,6 +61,30 @@
         "title": "%deepseek-copilot.command.clearApiKey%"
       },
       {
+        "command": "deepseek-copilot.setApiKey.deepseek",
+        "title": "%deepseek-copilot.command.setApiKey.deepseek%"
+      },
+      {
+        "command": "deepseek-copilot.clearApiKey.deepseek",
+        "title": "%deepseek-copilot.command.clearApiKey.deepseek%"
+      },
+      {
+        "command": "deepseek-copilot.setApiKey.opencode-go",
+        "title": "%deepseek-copilot.command.setApiKey.opencode-go%"
+      },
+      {
+        "command": "deepseek-copilot.clearApiKey.opencode-go",
+        "title": "%deepseek-copilot.command.clearApiKey.opencode-go%"
+      },
+      {
+        "command": "deepseek-copilot.setApiKey.xiaomi-mimo",
+        "title": "%deepseek-copilot.command.setApiKey.xiaomi-mimo%"
+      },
+      {
+        "command": "deepseek-copilot.clearApiKey.xiaomi-mimo",
+        "title": "%deepseek-copilot.command.clearApiKey.xiaomi-mimo%"
+      },
+      {
         "command": "deepseek-copilot.setVisionModel",
         "title": "%deepseek-copilot.command.setVisionModel%"
       },
@@ -121,6 +145,28 @@
           "default": "https://api.deepseek.com",
           "description": "%deepseek-copilot.config.baseUrl.description%"
         },
+        "deepseek-copilot.apiKeys": {
+          "type": "object",
+          "default": {},
+          "description": "%deepseek-copilot.config.apiKeys.description%",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "properties": {
+            "deepseek": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.apiKeys.deepseek.description%"
+            },
+            "opencode-go": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.apiKeys.opencode-go.description%"
+            },
+            "xiaomi-mimo": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.apiKeys.xiaomi-mimo.description%"
+            }
+          }
+        },
         "deepseek-copilot.maxTokens": {
           "type": "number",
           "default": 0,
@@ -139,10 +185,26 @@
           "type": "object",
           "default": {
             "deepseek-v4-flash": "deepseek-v4-flash",
-            "deepseek-v4-pro": "deepseek-v4-pro"
+            "deepseek-v4-pro": "deepseek-v4-pro",
+            "opencode-go-deepseek-v4-flash": "deepseek-v4-flash",
+            "opencode-go-deepseek-v4-pro": "deepseek-v4-pro",
+            "opencode-go-mimo-v2.5": "mimo-v2.5",
+            "opencode-go-mimo-v2.5-pro": "mimo-v2.5-pro",
+            "opencode-go-glm-5.1": "glm-5.1",
+            "opencode-go-glm-5": "glm-5",
+            "opencode-go-kimi-k2.5": "kimi-k2.5",
+            "opencode-go-kimi-k2.6": "kimi-k2.6",
+            "opencode-go-minimax-m2.7": "minimax-m2.7",
+            "opencode-go-minimax-m2.5": "minimax-m2.5",
+            "opencode-go-qwen3.7-max": "qwen3.7-max",
+            "opencode-go-qwen3.6-plus": "qwen3.6-plus",
+            "xiaomi-mimo-v2.5-pro": "mimo-v2.5-pro",
+            "xiaomi-mimo-v2.5-flash": "mimo-v2.5-flash"
           },
           "description": "%deepseek-copilot.config.modelIdOverrides.description%",
-          "additionalProperties": false,
+          "additionalProperties": {
+            "type": "string"
+          },
           "properties": {
             "deepseek-v4-flash": {
               "type": "string",
@@ -151,6 +213,62 @@
             "deepseek-v4-pro": {
               "type": "string",
               "description": "%deepseek-copilot.config.modelIdOverrides.deepseek-v4-pro.description%"
+            },
+            "opencode-go-deepseek-v4-flash": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-deepseek-v4-flash.description%"
+            },
+            "opencode-go-deepseek-v4-pro": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-deepseek-v4-pro.description%"
+            },
+            "opencode-go-mimo-v2.5": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-mimo-v2.5.description%"
+            },
+            "opencode-go-mimo-v2.5-pro": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-mimo-v2.5-pro.description%"
+            },
+            "opencode-go-glm-5.1": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-glm-5.1.description%"
+            },
+            "opencode-go-glm-5": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-glm-5.description%"
+            },
+            "opencode-go-kimi-k2.5": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-kimi-k2.5.description%"
+            },
+            "opencode-go-kimi-k2.6": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-kimi-k2.6.description%"
+            },
+            "opencode-go-minimax-m2.7": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-minimax-m2.7.description%"
+            },
+            "opencode-go-minimax-m2.5": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-minimax-m2.5.description%"
+            },
+            "opencode-go-qwen3.7-max": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-qwen3.7-max.description%"
+            },
+            "opencode-go-qwen3.6-plus": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-qwen3.6-plus.description%"
+            },
+            "xiaomi-mimo-v2.5-pro": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.xiaomi-mimo-v2.5-pro.description%"
+            },
+            "xiaomi-mimo-v2.5-flash": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.xiaomi-mimo-v2.5-flash.description%"
             }
           }
         },
