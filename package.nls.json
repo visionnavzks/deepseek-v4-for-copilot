@@ -50,8 +50,8 @@
   "deepseek-copilot.config.modelIdOverrides.opencode-go-minimax-m2.5.description": "API model ID for MiniMax M2.5 (OpenCode Go)",
   "deepseek-copilot.config.modelIdOverrides.opencode-go-qwen3.7-max.description": "API model ID for Qwen3.7 Max (OpenCode Go)",
   "deepseek-copilot.config.modelIdOverrides.opencode-go-qwen3.6-plus.description": "API model ID for Qwen3.6 Plus (OpenCode Go)",
+  "deepseek-copilot.config.modelIdOverrides.xiaomi-mimo-v2.5.description": "API model ID for Xiaomi MiMo V2.5",
   "deepseek-copilot.config.modelIdOverrides.xiaomi-mimo-v2.5-pro.description": "API model ID for Xiaomi MiMo V2.5 Pro",
-  "deepseek-copilot.config.modelIdOverrides.xiaomi-mimo-v2.5-flash.description": "API model ID for Xiaomi MiMo V2.5 Flash",
   "deepseek-copilot.config.visionModel.description": "Model ID for vision proxy (describes images for text-only DeepSeek models). Leave empty for auto-detection. Use 'DeepSeek: Set Vision Proxy Model' command to pick one from a list.",
   "deepseek-copilot.config.visionPrompt.description": "Prompt sent to the vision proxy model when describing image attachments before forwarding them to DeepSeek."
 }

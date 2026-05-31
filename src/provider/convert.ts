@@ -1,12 +1,14 @@
 import vscode from 'vscode';
 import { safeStringify } from '../json';
 import type {
-	AnthropicContentBlock,
-	AnthropicMessage,
-	AnthropicTool,
-	DeepSeekMessage,
-	DeepSeekTool,
-	DeepSeekToolCall,
+    AnthropicContentBlock,
+    AnthropicMessage,
+    AnthropicTool,
+    DeepSeekContentPart,
+    DeepSeekImagePart,
+    DeepSeekMessage,
+    DeepSeekTool,
+    DeepSeekToolCall
 } from '../types';
 import { parseFirstReplayMarker } from './replay';
 
@@ -25,12 +27,20 @@ export function convertMessages(
 
 		let content = '';
 		let thinkingContent = '';
+		const contentImageParts: DeepSeekImagePart[] = [];
 		const toolCalls: DeepSeekToolCall[] = [];
 		const toolResults: Array<{ callId: string; content: string }> = [];
 
 		for (const part of message.content) {
 			if (part instanceof vscode.LanguageModelTextPart) {
 				content += part.value;
+			} else if (part instanceof vscode.LanguageModelDataPart && part.mimeType.startsWith('image/')) {
+				// Native image passthrough — convert to OpenAI-compatible image_url content part
+				const base64 = uint8ArrayToBase64(part.data);
+				contentImageParts.push({
+					type: 'image_url',
+					image_url: { url: `data:${part.mimeType};base64,${base64}` },
+				});
 			} else if (isLanguageModelThinkingPart(part)) {
 				thinkingContent += normalizeThinkingPartText(part.value);
 			} else if (part instanceof vscode.LanguageModelToolCallPart) {
@@ -75,12 +85,19 @@ export function convertMessages(
 				result.push(msg);
 			}
 		} else {
+			// User message — build content (string or content parts array for native images)
+			const contentParts: DeepSeekContentPart[] = [];
 			if (content) {
-				result.push({
-					role: role as 'user' | 'assistant',
-					content: content,
-				});
+				contentParts.push({ type: 'text', text: content });
 			}
+			contentParts.push(...contentImageParts);
+
+			result.push({
+				role: role as 'user' | 'assistant',
+				content: contentParts.length === 1 && contentParts[0].type === 'text'
+					? contentParts[0].text
+					: contentParts,
+			});
 		}
 
 		// Tool result messages follow their associated assistant message
@@ -188,6 +205,13 @@ export function convertMessagesAnthropic(
 		for (const part of message.content) {
 			if (part instanceof vscode.LanguageModelTextPart) {
 				textContent += part.value;
+			} else if (part instanceof vscode.LanguageModelDataPart && part.mimeType.startsWith('image/')) {
+				// Native image passthrough — convert to Anthropic image content block
+				const base64 = uint8ArrayToBase64(part.data);
+				contentBlocks.push({
+					type: 'image',
+					source: { type: 'base64', media_type: part.mimeType, data: base64 },
+				});
 			} else if (isLanguageModelThinkingPart(part)) {
 				const text = normalizeThinkingPartText(part.value);
 				contentBlocks.push({ type: 'thinking', thinking: text });
@@ -236,15 +260,15 @@ export function convertMessagesAnthropic(
 				anthropicMessages.push({ role: 'assistant', content: blocks });
 			}
 		} else {
-			// User message — system is extracted, tool results go as blocks
-			if (textContent && !system) {
-				// First user text becomes system prompt
-				// Actually, in Anthropic, system is separate from messages
-				// We keep it as a user message if not the first one
-			}
+			// User message — combine text, images, and tool results into content blocks
+			const hasImages = contentBlocks.some((b) => b.type === 'image');
 
-			if (contentBlocks.length > 0) {
-				// Tool results go in user messages
+			if (hasImages && textContent) {
+				// Prepend text block before image blocks for multimodal messages
+				contentBlocks.unshift({ type: 'text', text: textContent });
+				anthropicMessages.push({ role: 'user', content: contentBlocks });
+			} else if (contentBlocks.length > 0) {
+				// Tool results or images without text
 				anthropicMessages.push({ role: 'user', content: contentBlocks });
 			} else if (textContent) {
 				anthropicMessages.push({ role: 'user', content: textContent });
@@ -279,4 +303,12 @@ export function convertToolsAnthropic(
 		description: tool.description,
 		input_schema: tool.inputSchema as Record<string, unknown> | undefined,
 	}));
+}
+
+/**
+ * Convert a Uint8Array to a base64 string.
+ * Uses Node.js Buffer for efficiency.
+ */
+function uint8ArrayToBase64(data: Uint8Array): string {
+	return Buffer.from(data).toString('base64');
 }

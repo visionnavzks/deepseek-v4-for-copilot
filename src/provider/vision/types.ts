@@ -5,6 +5,7 @@ export interface VisionResolutionStats {
 	inputImageParts: number;
 	inputImageMessages: number;
 	currentImageMessages: number;
+	nativeImageMessages: number;
 	generatedImageMessages: number;
 	replayedImageMessages: number;
 	omittedImageMessages: number;

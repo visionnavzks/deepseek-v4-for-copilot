@@ -4,9 +4,9 @@ import { toWellFormedString } from '../../json';
 import { logger } from '../../logger';
 import { parseFirstReplayMarker } from '../replay';
 import {
-	IMAGE_DESCRIPTION_PREFIX,
-	IMAGE_DESCRIPTION_SUFFIX,
-	IMAGE_DESCRIPTION_UNAVAILABLE,
+    IMAGE_DESCRIPTION_PREFIX,
+    IMAGE_DESCRIPTION_SUFFIX,
+    IMAGE_DESCRIPTION_UNAVAILABLE,
 } from './consts';
 import { getVisionPrompt } from './model';
 import type { VisionResolutionResult, VisionResolutionStats } from './types';
@@ -15,11 +15,16 @@ import type { VisionResolutionResult, VisionResolutionStats } from './types';
  * Resolve image parts without treating image bytes as persistent identity.
  * Historical images replay marker-carried text; only the current tail user
  * image message is sent to the vision proxy.
+ *
+ * When `nativeVision` is true and the current message contains images,
+ * the images are kept as LanguageModelDataPart for native API passthrough
+ * (only text parts are dropped from historical messages).
  */
 export async function resolveImageMessages(
 	messages: readonly vscode.LanguageModelChatRequestMessage[],
 	token: vscode.CancellationToken,
 	getModel: () => Promise<vscode.LanguageModelChat | undefined>,
+	nativeVision = false,
 ): Promise<VisionResolutionResult> {
 	const stats = createVisionResolutionStats();
 	collectInputImageStats(messages, stats);
@@ -57,6 +62,17 @@ export async function resolveImageMessages(
 
 		if (messageIndex === currentImageMessageIndex) {
 			stats.currentImageMessages += 1;
+
+			if (nativeVision) {
+				// ★ Native path: keep the original message with LanguageModelDataPart intact.
+				// The converter will handle the API-native image format (base64 data URL
+				// for OpenAI/DeepSeek, or Anthropic image block).
+				stats.nativeImageMessages += 1;
+				result.push(message as vscode.LanguageModelChatRequestMessage);
+				continue;
+			}
+
+			// Proxy path: describe images as text via the vision proxy model.
 			if (!visionModelRequested) {
 				visionModelRequested = true;
 				visionModel = await getModel();
@@ -98,6 +114,7 @@ function createVisionResolutionStats(): VisionResolutionStats {
 		inputImageParts: 0,
 		inputImageMessages: 0,
 		currentImageMessages: 0,
+		nativeImageMessages: 0,
 		generatedImageMessages: 0,
 		replayedImageMessages: 0,
 		omittedImageMessages: 0,

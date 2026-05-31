@@ -198,8 +198,8 @@
             "opencode-go-minimax-m2.5": "minimax-m2.5",
             "opencode-go-qwen3.7-max": "qwen3.7-max",
             "opencode-go-qwen3.6-plus": "qwen3.6-plus",
-            "xiaomi-mimo-v2.5-pro": "mimo-v2.5-pro",
-            "xiaomi-mimo-v2.5-flash": "mimo-v2.5-flash"
+            "xiaomi-mimo-v2.5": "mimo-v2.5",
+            "xiaomi-mimo-v2.5-pro": "mimo-v2.5-pro"
           },
           "description": "%deepseek-copilot.config.modelIdOverrides.description%",
           "additionalProperties": {
@@ -262,13 +262,13 @@
               "type": "string",
               "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-qwen3.6-plus.description%"
             },
+            "xiaomi-mimo-v2.5": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.xiaomi-mimo-v2.5.description%"
+            },
             "xiaomi-mimo-v2.5-pro": {
               "type": "string",
               "description": "%deepseek-copilot.config.modelIdOverrides.xiaomi-mimo-v2.5-pro.description%"
-            },
-            "xiaomi-mimo-v2.5-flash": {
-              "type": "string",
-              "description": "%deepseek-copilot.config.modelIdOverrides.xiaomi-mimo-v2.5-flash.description%"
             }
           }
         },

@@ -50,8 +50,8 @@
   "deepseek-copilot.config.modelIdOverrides.opencode-go-minimax-m2.5.description": "MiniMax M2.5 (OpenCode Go) 的 API 模型 ID。",
   "deepseek-copilot.config.modelIdOverrides.opencode-go-qwen3.7-max.description": "Qwen3.7 Max (OpenCode Go) 的 API 模型 ID。",
   "deepseek-copilot.config.modelIdOverrides.opencode-go-qwen3.6-plus.description": "Qwen3.6 Plus (OpenCode Go) 的 API 模型 ID。",
+  "deepseek-copilot.config.modelIdOverrides.xiaomi-mimo-v2.5.description": "小米 MiMo V2.5 的 API 模型 ID。",
   "deepseek-copilot.config.modelIdOverrides.xiaomi-mimo-v2.5-pro.description": "小米 MiMo V2.5 Pro 的 API 模型 ID。",
-  "deepseek-copilot.config.modelIdOverrides.xiaomi-mimo-v2.5-flash.description": "小米 MiMo V2.5 Flash 的 API 模型 ID。",
   "deepseek-copilot.config.visionModel.description": "用于描述图片的视觉代理模型 ID，留空则自动检测，也可通过「DeepSeek: 设置视觉代理模型」命令从列表中选择。",
   "deepseek-copilot.config.visionPrompt.description": "在将图片附件转发给 DeepSeek 之前，发送给视觉代理模型的提示词。"
 }

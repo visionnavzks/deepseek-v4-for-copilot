@@ -3,7 +3,7 @@ import vscode from 'vscode';
 import { getDebugLoggingEnabled } from '../../config';
 import { LANGUAGE_MODEL_CHAT_SYSTEM_ROLE } from '../../consts';
 import { logger } from '../../logger';
-import type { DeepSeekMessage, DeepSeekRequest, DeepSeekTool, DeepSeekUsage } from '../../types';
+import { extractMessageText, type DeepSeekMessage, type DeepSeekRequest, type DeepSeekTool, type DeepSeekUsage } from '../../types';
 import { REPLAY_MARKER_MIME, parseFirstReplayMarker } from '../replay';
 import type { ConversationSegment } from '../segment';
 import { ACTIVATE_TOOL_PREFIX } from '../tools/consts';
@@ -1603,21 +1603,22 @@ function summarizeMessage(
 		: ('none' as const);
 	const hasReasoningContent = message.reasoning_content !== undefined;
 	const hasEmptyReasoningContent = hasReasoningContent && reasoningChars === 0;
-	const imageDescriptionCount = countLiteral(message.content, '[Image Description:');
-	const unableImageCount = countLiteral(message.content, IMAGE_DESCRIPTION_UNAVAILABLE);
-	const urlCount = countRegex(message.content, /https?:\/\//g);
-	const codeFenceCount = countLiteral(message.content, '```');
-	const likelyPathCount = countLikelyPaths(message.content);
+	const contentText = extractMessageText(message.content);
+	const imageDescriptionCount = countLiteral(contentText, '[Image Description:');
+	const unableImageCount = countLiteral(contentText, IMAGE_DESCRIPTION_UNAVAILABLE);
+	const urlCount = countRegex(contentText, /https?:\/\//g);
+	const codeFenceCount = countLiteral(contentText, '```');
+	const likelyPathCount = countLikelyPaths(contentText);
 
 	return {
 		index,
 		role: message.role,
 		hash: hashString(stableStringify(message)),
-		contentHash: hashString(message.content),
-		contentHeadHash: hashString(message.content.slice(0, HASH_WINDOW_CHARS)),
-		contentTailHash: hashString(message.content.slice(-HASH_WINDOW_CHARS)),
-		contentChars: message.content.length,
-		contentLines: countLines(message.content),
+		contentHash: hashString(contentText),
+		contentHeadHash: hashString(contentText.slice(0, HASH_WINDOW_CHARS)),
+		contentTailHash: hashString(contentText.slice(-HASH_WINDOW_CHARS)),
+		contentChars: contentText.length,
+		contentLines: countLines(contentText),
 		imageDescriptionCount,
 		unableImageCount,
 		urlCount,
@@ -1633,7 +1634,7 @@ function summarizeMessage(
 		missingPostToolReasoning: assistantAfterToolResult && !hasReasoningContent,
 		missingPostToolCallReasoning: afterToolResultKind === 'tool-call' && !hasReasoningContent,
 		missingPostToolFinalReasoning: afterToolResultKind === 'final' && !hasReasoningContent,
-		contentSections: index === 0 ? summarizeSystemPromptSections(message.content) : undefined,
+		contentSections: index === 0 ? summarizeSystemPromptSections(contentText) : undefined,
 	};
 }
 
@@ -1814,28 +1815,29 @@ function summarizeStats(messages: DeepSeekMessage[], toolCount: number): CacheTr
 			largeMessages += 1;
 		}
 
-		const imageDescriptions = countLiteral(message.content, '[Image Description:');
+		const msgContentText = extractMessageText(message.content);
+		const imageDescriptions = countLiteral(msgContentText, '[Image Description:');
 		if (imageDescriptions > 0) {
 			imageDescriptionMessages += 1;
 			imageDescriptionParts += imageDescriptions;
 		}
-		if (message.content.includes(IMAGE_DESCRIPTION_UNAVAILABLE)) {
+		if (msgContentText.includes(IMAGE_DESCRIPTION_UNAVAILABLE)) {
 			unableImageMessages += 1;
 		}
 
-		const messageUrlCount = countRegex(message.content, /https?:\/\//g);
+		const messageUrlCount = countRegex(msgContentText, /https?:\/\//g);
 		if (messageUrlCount > 0) {
 			urlMessages += 1;
 			urlCount += messageUrlCount;
 		}
 
-		const messageCodeFenceCount = countLiteral(message.content, '```');
+		const messageCodeFenceCount = countLiteral(msgContentText, '```');
 		if (messageCodeFenceCount > 0) {
 			codeFenceMessages += 1;
 			codeFenceCount += messageCodeFenceCount;
 		}
 
-		const messageLikelyPathCount = countLikelyPaths(message.content);
+		const messageLikelyPathCount = countLikelyPaths(msgContentText);
 		if (messageLikelyPathCount > 0) {
 			likelyPathMessages += 1;
 			likelyPathCount += messageLikelyPathCount;

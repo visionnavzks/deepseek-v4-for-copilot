@@ -7,17 +7,17 @@ import { getRequestDumpEnabled } from '../../config';
 import { LANGUAGE_MODEL_CHAT_SYSTEM_ROLE } from '../../consts';
 import { safeStringify, toWellFormedString } from '../../json';
 import { logger } from '../../logger';
-import type { DeepSeekMessage, DeepSeekRequest } from '../../types';
+import { extractMessageText, type DeepSeekMessage, type DeepSeekRequest } from '../../types';
 import { parseReplayMarkerData, REPLAY_MARKER_MIME } from '../replay';
 import type { ConversationSegment } from '../segment';
 import { ACTIVATE_TOOL_PREFIX } from '../tools/consts';
 import type { VisionResolutionStats } from '../vision/index';
 import {
-	classifyDeepSeekRequest,
-	classifyProviderRequest,
-	formatModelFields,
-	formatRequestLogLine,
-	type RequestKind,
+    classifyDeepSeekRequest,
+    classifyProviderRequest,
+    formatModelFields,
+    formatRequestLogLine,
+    type RequestKind,
 } from './classifier';
 
 let dumpCounter = 0;
@@ -217,7 +217,7 @@ export function dumpDeepSeekRequest(
 		);
 
 		if (msg0 && paths.msg0) {
-			await writeTextFile(paths.msg0, msg0.content);
+			await writeTextFile(paths.msg0, extractMessageText(msg0.content));
 		}
 
 		await writeDumpObservation(
@@ -670,7 +670,7 @@ function summarizeDeepSeekSystemPrompt(messages: readonly DeepSeekMessage[]): Sy
 		return createSystemPromptSummary(null, null, '', customizations);
 	}
 
-	return createSystemPromptSummary(0, message.role, message.content ?? '', customizations);
+	return createSystemPromptSummary(0, message.role, extractMessageText(message.content ?? ''), customizations);
 }
 
 function createSystemPromptSummary(
@@ -727,7 +727,7 @@ function summarizeDeepSeekCustomizations(
 	let latestUserHasCustomizationsUpdate = false;
 
 	for (const [index, message] of messages.entries()) {
-		const text = message.content ?? '';
+		const text = extractMessageText(message.content ?? '');
 		customizationsUpdateCountInHistory += countLiteral(text, '<customizationsUpdate>');
 		if (message.role === 'user') {
 			latestUserMessageIndex = index;

@@ -6,10 +6,38 @@
 
 export interface DeepSeekMessage {
 	role: 'system' | 'user' | 'assistant' | 'tool';
-	content: string;
+	content: string | DeepSeekContentPart[];
 	tool_call_id?: string;
 	tool_calls?: DeepSeekToolCall[];
 	reasoning_content?: string;
+}
+
+/** OpenAI-compatible content part for text. */
+export interface DeepSeekTextPart {
+	type: 'text';
+	text: string;
+}
+
+/** OpenAI-compatible content part for image (base64 data URL). */
+export interface DeepSeekImagePart {
+	type: 'image_url';
+	image_url: { url: string };
+}
+
+export type DeepSeekContentPart = DeepSeekTextPart | DeepSeekImagePart;
+
+/**
+ * Extract the concatenated text from a DeepSeekMessage.content field.
+ * Handles both `string` (text-only) and `ContentPart[]` (multimodal) formats.
+ */
+export function extractMessageText(content: string | DeepSeekContentPart[]): string {
+	if (typeof content === 'string') {
+		return content;
+	}
+	return content
+		.filter((p): p is DeepSeekTextPart => p.type === 'text')
+		.map((p) => p.text)
+		.join('');
 }
 
 export interface DeepSeekToolCall {
@@ -145,7 +173,8 @@ export type AnthropicContentBlock =
 	| { type: 'text'; text: string }
 	| { type: 'thinking'; thinking: string; signature?: string }
 	| { type: 'tool_use'; id: string; name: string; input: Record<string, unknown> }
-	| { type: 'tool_result'; tool_use_id: string; content: string | AnthropicContentBlock[] };
+	| { type: 'tool_result'; tool_use_id: string; content: string | AnthropicContentBlock[] }
+	| { type: 'image'; source: { type: 'base64'; media_type: string; data: string } };
 
 export interface AnthropicTool {
 	name: string;

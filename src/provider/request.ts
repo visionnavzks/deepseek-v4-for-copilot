@@ -93,7 +93,12 @@ export async function prepareChatRequest({
 	const thinkingEffort = getConfiguredThinkingEffort(options as ModelConfigurationOptions);
 	const maxTokens = getMaxTokens();
 
-	const visionResolution = await resolveImageMessages(messages, token, getVisionModel);
+	const visionResolution = await resolveImageMessages(
+		messages,
+		token,
+		getVisionModel,
+		modelDef?.capabilities.imageInput ?? false,
+	);
 	const resolvedMessages = visionResolution.messages;
 	const tools = prepareRequestTools(modelDef?.capabilities.toolCalling, options);
 

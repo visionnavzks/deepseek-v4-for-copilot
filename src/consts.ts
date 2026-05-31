@@ -87,7 +87,7 @@ export const MODELS: ModelDefinition[] = [
 		maxOutputTokens: 393216,
 		capabilities: {
 			toolCalling: DEEPSEEK_TOOLS_LIMIT,
-			imageInput: true,
+			imageInput: false,
 			thinking: true,
 		},
 		requiresThinkingParam: true,
@@ -103,7 +103,7 @@ export const MODELS: ModelDefinition[] = [
 		maxOutputTokens: 393216,
 		capabilities: {
 			toolCalling: DEEPSEEK_TOOLS_LIMIT,
-			imageInput: true,
+			imageInput: false,
 			thinking: true,
 		},
 		requiresThinkingParam: true,
@@ -216,7 +216,7 @@ export const MODELS: ModelDefinition[] = [
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
-			imageInput: false,
+			imageInput: true,
 			thinking: true,
 		},
 		requiresThinkingParam: true,
@@ -232,7 +232,7 @@ export const MODELS: ModelDefinition[] = [
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
-			imageInput: false,
+			imageInput: true,
 			thinking: true,
 		},
 		requiresThinkingParam: true,
@@ -281,7 +281,7 @@ export const MODELS: ModelDefinition[] = [
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
-			imageInput: false,
+			imageInput: true,
 			thinking: true,
 		},
 		requiresThinkingParam: true,
@@ -297,7 +297,7 @@ export const MODELS: ModelDefinition[] = [
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
-			imageInput: false,
+			imageInput: true,
 			thinking: true,
 		},
 		requiresThinkingParam: true,
@@ -305,16 +305,16 @@ export const MODELS: ModelDefinition[] = [
 	},
 	// ---- Xiaomi MiMo models (OpenAI-compatible) ----
 	{
-		id: 'xiaomi-mimo-v2.5-pro',
-		name: 'MiMo V2.5 Pro',
+		id: 'xiaomi-mimo-v2.5',
+		name: 'MiMo V2.5',
 		family: 'xiaomi-mimo',
 		version: 'v2.5',
-		detail: 'Xiaomi MiMo V2.5 Pro',
+		detail: 'Xiaomi MiMo V2.5 — multimodal reasoning',
 		maxInputTokens: 131072,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
-			imageInput: false,
+			imageInput: true,
 			thinking: true,
 		},
 		requiresThinkingParam: true,
@@ -322,11 +322,11 @@ export const MODELS: ModelDefinition[] = [
 		nativeReasoningContent: true,
 	},
 	{
-		id: 'xiaomi-mimo-v2.5-flash',
-		name: 'MiMo V2.5 Flash',
+		id: 'xiaomi-mimo-v2.5-pro',
+		name: 'MiMo V2.5 Pro',
 		family: 'xiaomi-mimo',
 		version: 'v2.5',
-		detail: 'Xiaomi MiMo V2.5 Flash',
+		detail: 'Xiaomi MiMo V2.5 Pro — agentic reasoning',
 		maxInputTokens: 131072,
 		maxOutputTokens: 16384,
 		capabilities: {

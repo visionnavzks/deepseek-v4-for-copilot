@@ -36,24 +36,19 @@ function estimatePartChars(part: unknown): number {
 		return chars;
 	}
 
-	// 4. LanguageModelDataPart — use a capped heuristic because our model never
-	//    receives binary data directly. Images are resolved to text descriptions
-	//    by the vision pipeline; raw byteLength would massively overestimate.
+	// 4. LanguageModelDataPart — estimate based on whether images are proxied or native.
 	if (part instanceof vscode.LanguageModelDataPart) {
 		const mime = part.mimeType;
 		if (mime === REPLAY_MARKER_MIME) {
-			// Marker metadata is not sent as assistant content. Its vision text belongs
-			// logically to a previous user image message, but provideTokenCount only
-			// receives one message at a time and cannot safely bind history here.
 			return 0;
 		}
 
-		// Images are resolved by the vision pipeline before reaching DeepSeek.
-		// At token-count time we cannot know whether this image will be generated,
-		// replayed from a later assistant marker, or omitted as a historical miss.
-		// Use a stable fallback estimate instead of raw image bytes.
 		if (mime.startsWith('image/')) {
-			return IMAGE_PART_ESTIMATED_CHARS;
+			// Native images are sent as base64 data URLs to the API.
+			// base64 encoding inflates data by ~33%, and each 4 base64 chars ≈ 1 token.
+			// Use data.byteLength * 1.37 / 4 ≈ byteLength * 0.34 as a rough estimate.
+			const byteLength = part.data?.byteLength ?? 0;
+			return Math.max(IMAGE_PART_ESTIMATED_CHARS, Math.round(byteLength * 0.34));
 		}
 		// PDFs and other documents: use byteLength as a rough proxy but cap it
 		// to prevent a single large attachment from dominating the budget.
