@@ -155,14 +155,21 @@ export function convertTools(
 		return undefined;
 	}
 
-	return tools.map((tool) => ({
-		type: 'function' as const,
-		function: {
-			name: tool.name,
-			description: tool.description,
-			parameters: tool.inputSchema as Record<string, unknown> | undefined,
-		},
-	}));
+	const result: DeepSeekTool[] = [];
+	for (const tool of tools) {
+		if (!tool.name) {
+			continue;
+		}
+		result.push({
+			type: 'function' as const,
+			function: {
+				name: tool.name,
+				description: tool.description,
+				parameters: (tool.inputSchema ?? {}) as Record<string, unknown>,
+			},
+		});
+	}
+	return result.length > 0 ? result : undefined;
 }
 
 /**

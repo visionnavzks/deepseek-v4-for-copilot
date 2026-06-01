@@ -79,9 +79,9 @@ Install from the registry used by your editor:
 
 ### Usage
 
-1. Run **DeepSeek: Set API Key** from the Command Palette (`Cmd+Shift+P`)
+1. Run **MultiModel: Set API Key** from the Command Palette (`Cmd+Shift+P`)
 2. Paste your key or compatible provider token (official DeepSeek keys usually start with `sk-`)
-3. Open Copilot Chat, click the model picker, pick **DeepSeek V4 Pro** or **DeepSeek V4 Flash**
+3. Open Copilot Chat, click the model picker, and choose the model you want
 4. That's it — chat away
 
 ## Models
@@ -104,11 +104,11 @@ All models support optional thinking mode and tool calling where applicable.
 |---|---|---|
 | `deepseek-copilot.baseUrl` | `https://api.deepseek.com` | API endpoint — change for self-hosted / proxied deployments |
 | `deepseek-copilot.maxTokens` | `0` | Max output tokens (`0` = no limit). Useful for cost control |
-| `deepseek-copilot.modelIdOverrides` | prefilled official ID map | API model IDs to send for DeepSeek V4 Flash / Pro. Change only for compatible third-party APIs with different model names |
+| `deepseek-copilot.modelIdOverrides` | prefilled official ID map | API model IDs to send for each model. Change only for compatible third-party APIs with different model names |
 | `deepseek-copilot.debugMode` | `minimal` | Diagnostic mode: `minimal` for token usage only, `metadata` for privacy-preserving logs, or `verbose` for full request dumps and pipeline snapshots under extension global storage. Full dumps may include sensitive prompt text, tool schemas, file snippets, and image descriptions. Use `MultiModel: Open Request Dumps Folder` to open the dump location |
 | `deepseek-copilot.visionModel` | *(auto)* | Which Copilot model to proxy images through |
 | `deepseek-copilot.visionPrompt` | *(built-in)* | Prompt used to describe image attachments |
-| `deepseek-copilot.experimental.stabilizeToolList` | `false` | Experimental. Tries to pre-activate VS Code/Copilot virtual tools so the DeepSeek API `tools` parameter is more complete and stable across turns. May improve context-cache hit rate when enabled tools change between turns. Can increase input tokens because more function definitions may be included; cache-hit input tokens are cheaper but still count toward usage. Usually leave it off with 64 or fewer enabled tools unless the tool list still changes across turns; do not enable it with more than 128 enabled tools |
+| `deepseek-copilot.experimental.stabilizeToolList` | `false` | Experimental. Tries to pre-activate VS Code/Copilot virtual tools so the provider `tools` parameter is more complete and stable across turns. May improve context-cache hit rate when enabled tools change between turns. Can increase input tokens because more function definitions may be included; cache-hit input tokens are cheaper but still count toward usage. Usually leave it off with 64 or fewer enabled tools unless the tool list still changes across turns; do not enable it with more than 128 enabled tools |
 
 Thinking Effort is configured from Copilot Chat's model picker for each supported model.
 

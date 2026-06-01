@@ -47,7 +47,7 @@
     "languageModelChatProviders": [
       {
         "vendor": "deepseek",
-        "displayName": "DeepSeek"
+        "displayName": "MultiModel"
       }
     ],
     "commands": [

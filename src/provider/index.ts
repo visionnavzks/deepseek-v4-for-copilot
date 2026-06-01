@@ -117,13 +117,13 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 
 		// Force the host to re-pull `provideLanguageModelChatInformation` synchronously
 		// before the extension unloads. With `isActive = false` we now return [],
-		// which makes Copilot Chat drop DeepSeek models from the picker immediately
+		// which makes Copilot Chat drop our models from the picker immediately
 		// instead of leaving stale entries behind after deactivate. The returned
 		// model list itself is unused — we only call this for its side effect.
 		try {
 			await vscode.lm.selectChatModels({ vendor: 'deepseek' });
 		} catch (error) {
-			logger.warn('Failed to refresh DeepSeek models during deactivate', error);
+			logger.warn('Failed to refresh MultiModel models during deactivate', error);
 		}
 	}
 

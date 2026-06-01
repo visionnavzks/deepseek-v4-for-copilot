@@ -19,7 +19,7 @@
   "deepseek-copilot.walkthrough.setApiKey.title": "Set your API key",
   "deepseek-copilot.walkthrough.setApiKey.description": "[Get a DeepSeek API key](command:deepseek-copilot.getApiKey) from deepseek.com.\n[Set API Key](command:deepseek-copilot.setApiKey)",
   "deepseek-copilot.walkthrough.showModels.title": "Show available models",
-  "deepseek-copilot.walkthrough.showModels.description": "If the models are hidden, open VS Code\'s Language Models manager and show the MultiModel models.\n[Open Language Models](command:workbench.action.chat.manage)",
+  "deepseek-copilot.walkthrough.showModels.description": "If the models are hidden, open VS Code's Language Models manager and show the MultiModel models.\n[Open Language Models](command:workbench.action.chat.manage)",
   "deepseek-copilot.walkthrough.advancedSettings.title": "Try advanced settings",
   "deepseek-copilot.walkthrough.advancedSettings.description": "Customize providers and model names, configure the vision proxy, enable experimental settings, and more in the extension settings.\n[Open settings](command:deepseek-copilot.openSettings)",
   "deepseek-copilot.config.title": "MultiModel Copilot",
