@@ -15,7 +15,6 @@ import type {
     HttpErrorLinkStatusKey,
     NetworkErrorCategory,
 } from './types';
-export type { DeepSeekRequestErrorKind, ErrorActionUrls } from './types';
 
 const errorActionUrlStore = (() => {
 	let current: ErrorActionUrls = {};

@@ -2,11 +2,12 @@ import type { CancellationToken } from 'vscode';
 import { safeStringify } from '../json';
 import { logger } from '../logger';
 import type {
-	DeepSeekRequest,
-	DeepSeekStreamChunk,
-	DeepSeekToolCall,
-	StreamCallbacks,
+    DeepSeekRequest,
+    DeepSeekStreamChunk,
+    DeepSeekToolCall,
+    StreamCallbacks,
 } from '../types';
+import { createStreamContext, getDiagnosticMessage, isAbortError, streamFetch } from './base';
 import { createHttpError, normalizeRequestError } from './error';
 
 /**
@@ -28,13 +29,7 @@ export class DeepSeekClient {
 		callbacks: StreamCallbacks,
 		cancellationToken?: CancellationToken,
 	): Promise<void> {
-		const controller = new AbortController();
-		const cancelListener = cancellationToken?.onCancellationRequested(() => {
-			controller.abort();
-		});
-		if (cancellationToken?.isCancellationRequested) {
-			controller.abort();
-		}
+		const { controller, cancelListener } = createStreamContext(cancellationToken);
 
 		try {
 			// Request usage stats in streaming responses so we can calibrate token counting.
@@ -43,15 +38,17 @@ export class DeepSeekClient {
 				stream_options: { include_usage: true },
 			};
 
-			const response = await fetch(`${this.baseUrl}/chat/completions`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${this.apiKey}`,
+			const response = await streamFetch(
+				{
+					url: `${this.baseUrl}/chat/completions`,
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${this.apiKey}`,
+					},
+					body: safeStringify(requestBody),
 				},
-				body: safeStringify(requestBody),
-				signal: controller.signal,
-			});
+				{ controller, cancelListener },
+			);
 
 			if (!response.ok) {
 				throw await createHttpError(response, this.baseUrl);
@@ -181,12 +178,4 @@ export class DeepSeekClient {
 	}
 }
 
-function isAbortError(error: unknown): boolean {
-	return error instanceof Error && error.name === 'AbortError';
-}
 
-function getDiagnosticMessage(error: Error): string {
-	return 'diagnosticMessage' in error && typeof error.diagnosticMessage === 'string'
-		? error.diagnosticMessage
-		: error.message;
-}

@@ -2,11 +2,12 @@ import type { CancellationToken } from 'vscode';
 import { safeStringify } from '../json';
 import { logger } from '../logger';
 import type {
-	AnthropicRequest,
-	AnthropicSSEEvent,
-	DeepSeekToolCall,
-	StreamCallbacks,
+    AnthropicRequest,
+    AnthropicSSEEvent,
+    DeepSeekToolCall,
+    StreamCallbacks,
 } from '../types';
+import { createStreamContext, getDiagnosticMessage, isAbortError, streamFetch } from './base';
 import { createHttpError, normalizeRequestError } from './error';
 
 /**
@@ -24,25 +25,21 @@ export class AnthropicClient {
 		callbacks: StreamCallbacks,
 		cancellationToken?: CancellationToken,
 	): Promise<void> {
-		const controller = new AbortController();
-		const cancelListener = cancellationToken?.onCancellationRequested(() => {
-			controller.abort();
-		});
-		if (cancellationToken?.isCancellationRequested) {
-			controller.abort();
-		}
+		const { controller, cancelListener } = createStreamContext(cancellationToken);
 
 		try {
-			const response = await fetch(`${this.baseUrl}/v1/messages`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'x-api-key': this.apiKey,
-					'anthropic-version': '2023-06-01',
+			const response = await streamFetch(
+				{
+					url: `${this.baseUrl}/v1/messages`,
+					headers: {
+						'Content-Type': 'application/json',
+						'x-api-key': this.apiKey,
+						'anthropic-version': '2023-06-01',
+					},
+					body: safeStringify({ ...request, stream: true }),
 				},
-				body: safeStringify({ ...request, stream: true }),
-				signal: controller.signal,
-			});
+				{ controller, cancelListener },
+			);
 
 			if (!response.ok) {
 				throw await createHttpError(response, this.baseUrl);
@@ -183,12 +180,4 @@ export class AnthropicClient {
 	}
 }
 
-function isAbortError(error: unknown): boolean {
-	return error instanceof Error && error.name === 'AbortError';
-}
 
-function getDiagnosticMessage(error: Error): string {
-	return 'diagnosticMessage' in error && typeof error.diagnosticMessage === 'string'
-		? error.diagnosticMessage
-		: error.message;
-}

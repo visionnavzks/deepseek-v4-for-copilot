@@ -5,12 +5,8 @@ import { getApiModelId, getBaseUrlForModel, getMaxTokens } from '../config';
 import { MODELS } from '../consts';
 import { t } from '../i18n';
 import type { AnthropicRequest, DeepSeekRequest, StreamCallbacks } from '../types';
-import {
-    convertMessages,
-    convertMessagesAnthropic,
-    convertToolsAnthropic,
-    countMessageChars,
-} from './convert';
+import { convertMessages, countMessageChars } from './convert';
+import { convertMessagesAnthropic, convertToolsAnthropic } from './convert-anthropic';
 import {
     classifyDeepSeekRequest,
     dumpDeepSeekRequest,

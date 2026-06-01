@@ -1,3 +1,5 @@
+import type { ProviderId } from '../consts';
+
 export interface ErrorActionUrls {
 	configureApiKey?: string;
 	showLogs?: string;
@@ -13,7 +15,11 @@ export interface HttpErrorLinkDefinition {
 	url: string;
 }
 
-export type ApiProviderId = 'deepseek' | 'minimaxi';
+/**
+ * Subset of {@link ProviderId} that has dedicated HTTP error links
+ * (API key pages, balance/usage pages, status pages).
+ */
+export type ApiProviderId = Extract<ProviderId, 'deepseek' | 'minimaxi'>;
 export type HttpErrorLinkStatusKey = 401 | 402 | '5xx';
 
 export type DeepSeekRequestErrorKind = 'http' | 'network' | 'unknown';
