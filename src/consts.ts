@@ -92,7 +92,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'deepseek',
 		version: 'v4',
 		detail: 'Fast, general-purpose model',
-		maxInputTokens: 1000000,
+		maxContextTokens: 1000000,
 		maxOutputTokens: 393216,
 		capabilities: {
 			toolCalling: DEEPSEEK_TOOLS_LIMIT,
@@ -108,7 +108,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'deepseek',
 		version: 'v4',
 		detail: 'Most capable reasoning model',
-		maxInputTokens: 1000000,
+		maxContextTokens: 1000000,
 		maxOutputTokens: 393216,
 		capabilities: {
 			toolCalling: DEEPSEEK_TOOLS_LIMIT,
@@ -125,7 +125,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: 'v4',
 		detail: 'Fast, general-purpose model via OpenCode Go',
-		maxInputTokens: 1000000,
+		maxContextTokens: 1000000,
 		maxOutputTokens: 393216,
 		capabilities: {
 			toolCalling: 128,
@@ -141,7 +141,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: 'v4',
 		detail: 'Most capable reasoning model via OpenCode Go',
-		maxInputTokens: 1000000,
+		maxContextTokens: 1000000,
 		maxOutputTokens: 393216,
 		capabilities: {
 			toolCalling: 128,
@@ -157,7 +157,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: 'v2.5',
 		detail: 'Balanced reasoning and speed via OpenCode Go',
-		maxInputTokens: 1000000,
+		maxContextTokens: 1000000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -173,7 +173,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: 'v2.5',
 		detail: 'Enhanced MiMo reasoning via OpenCode Go',
-		maxInputTokens: 1000000,
+		maxContextTokens: 1000000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -189,7 +189,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: '5.1',
 		detail: 'Zhipu GLM coding model via OpenCode Go',
-		maxInputTokens: 200000,
+		maxContextTokens: 200000,
 		maxOutputTokens: 128000,
 		capabilities: {
 			toolCalling: 128,
@@ -205,7 +205,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: '5',
 		detail: 'Zhipu GLM general model via OpenCode Go',
-		maxInputTokens: 200000,
+		maxContextTokens: 200000,
 		maxOutputTokens: 128000,
 		capabilities: {
 			toolCalling: 128,
@@ -221,7 +221,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: '2.5',
 		detail: 'Moonshot Kimi coding model via OpenCode Go',
-		maxInputTokens: 256000,
+		maxContextTokens: 256000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -237,7 +237,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: '2.6',
 		detail: 'Moonshot Kimi latest model via OpenCode Go',
-		maxInputTokens: 256000,
+		maxContextTokens: 256000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -254,7 +254,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go-anthropic',
 		version: '2.7',
 		detail: 'MiniMax M2.7 via OpenCode Go',
-		maxInputTokens: 204800,
+		maxContextTokens: 204800,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -270,7 +270,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go-anthropic',
 		version: '2.5',
 		detail: 'MiniMax M2.5 via OpenCode Go',
-		maxInputTokens: 204800,
+		maxContextTokens: 204800,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -286,7 +286,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go-anthropic',
 		version: '3.7',
 		detail: 'Qwen3.7 Max via OpenCode Go',
-		maxInputTokens: 1000000,
+		maxContextTokens: 1000000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -302,7 +302,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go-anthropic',
 		version: '3.6',
 		detail: 'Qwen3.6 Plus via OpenCode Go',
-		maxInputTokens: 1000000,
+		maxContextTokens: 1000000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -319,7 +319,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'minimaxi',
 		version: 'm3',
 		detail: 'MiniMax-M3 — frontier coding & agentic model',
-		maxInputTokens: 1000000,
+		maxContextTokens: 1000000,
 		maxOutputTokens: 131072,
 		capabilities: {
 			toolCalling: 128,
@@ -336,7 +336,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'minimaxi',
 		version: 'm2.7',
 		detail: 'MiniMax-M2.7 — balanced reasoning model',
-		maxInputTokens: 1000000,
+		maxContextTokens: 1000000,
 		maxOutputTokens: 65536,
 		capabilities: {
 			toolCalling: 128,
@@ -353,7 +353,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'minimaxi',
 		version: 'm2.7',
 		detail: 'MiniMax-M2.7 High-Speed — faster responses',
-		maxInputTokens: 1000000,
+		maxContextTokens: 1000000,
 		maxOutputTokens: 65536,
 		capabilities: {
 			toolCalling: 128,
@@ -371,7 +371,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'xiaomi-mimo',
 		version: 'v2.5',
 		detail: 'Xiaomi MiMo V2.5 — multimodal reasoning',
-		maxInputTokens: 1000000,
+		maxContextTokens: 1000000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -388,7 +388,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'xiaomi-mimo',
 		version: 'v2.5',
 		detail: 'Xiaomi MiMo V2.5 Pro — agentic reasoning',
-		maxInputTokens: 1000000,
+		maxContextTokens: 1000000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,

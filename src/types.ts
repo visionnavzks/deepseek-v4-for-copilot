@@ -133,7 +133,13 @@ export interface ModelDefinition {
 	family: string;
 	version: string;
 	detail: string;
-	maxInputTokens: number;
+	/**
+	 * Total context window tokens advertised by the upstream model/provider.
+	 * VS Code's LanguageModelChatInformation expects maxInputTokens to mean
+	 * prompt/input budget, so callers should subtract maxOutputTokens when
+	 * exposing this to the model picker.
+	 */
+	maxContextTokens: number;
 	maxOutputTokens: number;
 	capabilities: {
 		toolCalling: boolean | number;

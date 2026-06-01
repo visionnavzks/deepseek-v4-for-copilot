@@ -38,7 +38,7 @@ export function toChatInfo(m: ModelDefinition, hasApiKey: boolean): ModelPickerC
 		detail: hasApiKey ? modelDetail : t('auth.apiKeyRequiredDetail'),
 		tooltip: hasApiKey ? undefined : t('auth.apiKeyRequiredDetail'),
 		statusIcon: hasApiKey ? undefined : new vscode.ThemeIcon('warning'),
-		maxInputTokens: m.maxInputTokens,
+		maxInputTokens: getMaxPromptTokens(m),
 		maxOutputTokens: m.maxOutputTokens,
 		isUserSelectable: true,
 		capabilities: {
@@ -47,6 +47,13 @@ export function toChatInfo(m: ModelDefinition, hasApiKey: boolean): ModelPickerC
 		},
 		...(m.capabilities.thinking ? { configurationSchema: buildThinkingEffortSchema() } : {}),
 	};
+}
+
+function getMaxPromptTokens(m: ModelDefinition): number {
+	// VS Code expects prompt/input budget here, while our registry stores the
+	// upstream total context window. Subtract the maximum completion budget so
+	// the picker shows the actual context window instead of an inflated value.
+	return Math.max(1, m.maxContextTokens - m.maxOutputTokens);
 }
 
 export function getConfiguredThinkingEffort(options: ModelConfigurationOptions): ThinkingEffort {
