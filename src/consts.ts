@@ -121,7 +121,7 @@ export const MODELS: ModelDefinition[] = [
 	// ---- OpenCode Go models ----
 	{
 		id: 'opencode-go-deepseek-v4-flash',
-		name: 'DeepSeek V4 Flash (Go)',
+		name: 'OpenCode Go DeepSeek V4 Flash',
 		family: 'opencode-go',
 		version: 'v4',
 		detail: 'Fast, general-purpose model via OpenCode Go',
@@ -137,7 +137,7 @@ export const MODELS: ModelDefinition[] = [
 	},
 	{
 		id: 'opencode-go-deepseek-v4-pro',
-		name: 'DeepSeek V4 Pro (Go)',
+		name: 'OpenCode Go DeepSeek V4 Pro',
 		family: 'opencode-go',
 		version: 'v4',
 		detail: 'Most capable reasoning model via OpenCode Go',
@@ -153,7 +153,7 @@ export const MODELS: ModelDefinition[] = [
 	},
 	{
 		id: 'opencode-go-mimo-v2.5',
-		name: 'MiMo V2.5 (Go)',
+		name: 'OpenCode Go MiMo V2.5',
 		family: 'opencode-go',
 		version: 'v2.5',
 		detail: 'Balanced reasoning and speed via OpenCode Go',
@@ -169,7 +169,7 @@ export const MODELS: ModelDefinition[] = [
 	},
 	{
 		id: 'opencode-go-mimo-v2.5-pro',
-		name: 'MiMo V2.5 Pro (Go)',
+		name: 'OpenCode Go MiMo V2.5 Pro',
 		family: 'opencode-go',
 		version: 'v2.5',
 		detail: 'Enhanced MiMo reasoning via OpenCode Go',
@@ -185,7 +185,7 @@ export const MODELS: ModelDefinition[] = [
 	},
 	{
 		id: 'opencode-go-glm-5.1',
-		name: 'GLM-5.1 (Go)',
+		name: 'OpenCode Go GLM-5.1',
 		family: 'opencode-go',
 		version: '5.1',
 		detail: 'Zhipu GLM coding model via OpenCode Go',
@@ -201,7 +201,7 @@ export const MODELS: ModelDefinition[] = [
 	},
 	{
 		id: 'opencode-go-glm-5',
-		name: 'GLM-5 (Go)',
+		name: 'OpenCode Go GLM-5',
 		family: 'opencode-go',
 		version: '5',
 		detail: 'Zhipu GLM general model via OpenCode Go',
@@ -217,7 +217,7 @@ export const MODELS: ModelDefinition[] = [
 	},
 	{
 		id: 'opencode-go-kimi-k2.5',
-		name: 'Kimi K2.5 (Go)',
+		name: 'OpenCode Go Kimi K2.5',
 		family: 'opencode-go',
 		version: '2.5',
 		detail: 'Moonshot Kimi coding model via OpenCode Go',
@@ -233,7 +233,7 @@ export const MODELS: ModelDefinition[] = [
 	},
 	{
 		id: 'opencode-go-kimi-k2.6',
-		name: 'Kimi K2.6 (Go)',
+		name: 'OpenCode Go Kimi K2.6',
 		family: 'opencode-go',
 		version: '2.6',
 		detail: 'Moonshot Kimi latest model via OpenCode Go',
@@ -250,7 +250,7 @@ export const MODELS: ModelDefinition[] = [
 	// ---- OpenCode Go Anthropic-protocol models ----
 	{
 		id: 'opencode-go-minimax-m2.7',
-		name: 'MiniMax M2.7 (Go)',
+		name: 'OpenCode Go MiniMax M2.7',
 		family: 'opencode-go-anthropic',
 		version: '2.7',
 		detail: 'MiniMax M2.7 via OpenCode Go',
@@ -266,7 +266,7 @@ export const MODELS: ModelDefinition[] = [
 	},
 	{
 		id: 'opencode-go-minimax-m2.5',
-		name: 'MiniMax M2.5 (Go)',
+		name: 'OpenCode Go MiniMax M2.5',
 		family: 'opencode-go-anthropic',
 		version: '2.5',
 		detail: 'MiniMax M2.5 via OpenCode Go',
@@ -282,7 +282,7 @@ export const MODELS: ModelDefinition[] = [
 	},
 	{
 		id: 'opencode-go-qwen3.7-max',
-		name: 'Qwen3.7 Max (Go)',
+		name: 'OpenCode Go Qwen3.7 Max',
 		family: 'opencode-go-anthropic',
 		version: '3.7',
 		detail: 'Qwen3.7 Max via OpenCode Go',
@@ -298,7 +298,7 @@ export const MODELS: ModelDefinition[] = [
 	},
 	{
 		id: 'opencode-go-qwen3.6-plus',
-		name: 'Qwen3.6 Plus (Go)',
+		name: 'OpenCode Go Qwen3.6 Plus',
 		family: 'opencode-go-anthropic',
 		version: '3.6',
 		detail: 'Qwen3.6 Plus via OpenCode Go',
@@ -367,7 +367,7 @@ export const MODELS: ModelDefinition[] = [
 	// ---- Xiaomi MiMo models (OpenAI-compatible) ----
 	{
 		id: 'xiaomi-mimo-v2.5',
-		name: 'MiMo V2.5',
+		name: 'Xiaomi MiMo V2.5',
 		family: 'xiaomi-mimo',
 		version: 'v2.5',
 		detail: 'Xiaomi MiMo V2.5 — multimodal reasoning',
@@ -384,7 +384,7 @@ export const MODELS: ModelDefinition[] = [
 	},
 	{
 		id: 'xiaomi-mimo-v2.5-pro',
-		name: 'MiMo V2.5 Pro',
+		name: 'Xiaomi MiMo V2.5 Pro',
 		family: 'xiaomi-mimo',
 		version: 'v2.5',
 		detail: 'Xiaomi MiMo V2.5 Pro — agentic reasoning',

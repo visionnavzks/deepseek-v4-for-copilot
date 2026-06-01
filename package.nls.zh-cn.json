@@ -1,5 +1,5 @@
 {
-  "deepseek-copilot.command.setApiKey": "MultiModel: 设置 API Key",
+  "deepseek-copilot.command.setApiKey": "MultiModel: 设置 DeepSeek API Key",
   "deepseek-copilot.command.getApiKey": "MultiModel: 获取 API Key",
   "deepseek-copilot.command.clearApiKey": "MultiModel: 清除 API Key",
   "deepseek-copilot.command.setApiKey.deepseek": "MultiModel: 设置 DeepSeek API Key",

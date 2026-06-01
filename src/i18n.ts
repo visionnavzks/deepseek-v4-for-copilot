@@ -50,7 +50,7 @@ const zh: Translations = {
 	'auth.emptyValidation': 'API Key 不能为空',
 	'auth.saved': 'API Key 已安全保存。',
 	'auth.removed': 'API Key 已移除。',
-	'auth.notConfigured': 'API Key 未配置，请在命令面板运行 "MultiModel: 设置 API Key"。',
+	'auth.notConfigured': 'DeepSeek API Key 未配置，请在命令面板运行 "MultiModel: 设置 DeepSeek API Key"。',
 
 	// Thinking Effort — short labels for model picker dropdown
 	'status.thinking': '思考模式',
@@ -146,7 +146,7 @@ const en: Translations = {
 	'auth.saved': 'API key saved.',
 	'auth.removed': 'API key removed.',
 	'auth.notConfigured':
-		'API key not configured. Run "MultiModel: Set API Key" from the Command Palette.',
+		'DeepSeek API key not configured. Run "MultiModel: Set DeepSeek API Key" from the Command Palette.',
 	'auth.prompt.deepseek': 'Enter your DeepSeek API key. Official keys usually start with "sk-".',
 	'auth.placeholder.deepseek': 'sk-...',
 	'auth.prompt.opencode-go': 'Enter your OpenCode Go API key.',

@@ -1,5 +1,5 @@
 {
-  "deepseek-copilot.command.setApiKey": "MultiModel: Set API Key",
+  "deepseek-copilot.command.setApiKey": "MultiModel: Set DeepSeek API Key",
   "deepseek-copilot.command.getApiKey": "MultiModel: Get API Key",
   "deepseek-copilot.command.clearApiKey": "MultiModel: Clear API Key",
   "deepseek-copilot.command.setApiKey.deepseek": "MultiModel: Set DeepSeek API Key",
