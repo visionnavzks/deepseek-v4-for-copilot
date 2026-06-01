@@ -160,7 +160,15 @@ export async function prepareChatRequest({
 									},
 								}
 							: {}),
-						...(thinkingEffort === 'none' ? {} : { reasoning_effort: thinkingEffort }),
+						...(thinkingEffort === 'none'
+							? {}
+							: {
+									reasoning_effort:
+										modelDef?.family === 'deepseek'
+											? thinkingEffort
+											: // Non-DeepSeek providers (Xiaomi, OpenCode Go) may not support 'max'.
+												thinkingEffort === 'max' ? 'high' : thinkingEffort,
+								}),
 					}
 				: {}),
 		};

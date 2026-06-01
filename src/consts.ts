@@ -72,7 +72,10 @@ export const WALKTHROUGH_ID = 'Vizards.deepseek-v4-for-copilot#deepseekGettingSt
 
 // ---- Model registry ----
 
-const OPENCODE_GO_BASE_URL = 'https://opencode.ai/zen/go';
+/** OpenCode Go base URL for OpenAI-compatible models (DeepSeekClient appends /chat/completions). */
+const OPENCODE_GO_BASE_URL = 'https://opencode.ai/zen/go/v1';
+/** OpenCode Go base URL for Anthropic-protocol models (AnthropicClient appends /v1/messages). */
+const OPENCODE_GO_ANTHROPIC_BASE_URL = 'https://opencode.ai/zen/go';
 const XIAOMI_MIMO_BASE_URL = 'https://api.xiaomimimo.com';
 
 /** Available DeepSeek models exposed through the language model provider. */
@@ -83,7 +86,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'deepseek',
 		version: 'v4',
 		detail: 'Fast, general-purpose model',
-		maxInputTokens: 655360,
+		maxInputTokens: 1000000,
 		maxOutputTokens: 393216,
 		capabilities: {
 			toolCalling: DEEPSEEK_TOOLS_LIMIT,
@@ -99,7 +102,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'deepseek',
 		version: 'v4',
 		detail: 'Most capable reasoning model',
-		maxInputTokens: 655360,
+		maxInputTokens: 1000000,
 		maxOutputTokens: 393216,
 		capabilities: {
 			toolCalling: DEEPSEEK_TOOLS_LIMIT,
@@ -116,8 +119,8 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: 'v4',
 		detail: 'Fast, general-purpose model via OpenCode Go',
-		maxInputTokens: 131072,
-		maxOutputTokens: 16384,
+		maxInputTokens: 1000000,
+		maxOutputTokens: 393216,
 		capabilities: {
 			toolCalling: 128,
 			imageInput: false,
@@ -132,8 +135,8 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: 'v4',
 		detail: 'Most capable reasoning model via OpenCode Go',
-		maxInputTokens: 131072,
-		maxOutputTokens: 16384,
+		maxInputTokens: 1000000,
+		maxOutputTokens: 393216,
 		capabilities: {
 			toolCalling: 128,
 			imageInput: false,
@@ -148,11 +151,11 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: 'v2.5',
 		detail: 'Balanced reasoning and speed via OpenCode Go',
-		maxInputTokens: 131072,
+		maxInputTokens: 1000000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
-			imageInput: false,
+			imageInput: true,
 			thinking: true,
 		},
 		requiresThinkingParam: true,
@@ -164,7 +167,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: 'v2.5',
 		detail: 'Enhanced MiMo reasoning via OpenCode Go',
-		maxInputTokens: 131072,
+		maxInputTokens: 1000000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -180,8 +183,8 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: '5.1',
 		detail: 'Zhipu GLM coding model via OpenCode Go',
-		maxInputTokens: 131072,
-		maxOutputTokens: 16384,
+		maxInputTokens: 200000,
+		maxOutputTokens: 128000,
 		capabilities: {
 			toolCalling: 128,
 			imageInput: false,
@@ -196,8 +199,8 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: '5',
 		detail: 'Zhipu GLM general model via OpenCode Go',
-		maxInputTokens: 131072,
-		maxOutputTokens: 16384,
+		maxInputTokens: 200000,
+		maxOutputTokens: 128000,
 		capabilities: {
 			toolCalling: 128,
 			imageInput: false,
@@ -212,7 +215,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: '2.5',
 		detail: 'Moonshot Kimi coding model via OpenCode Go',
-		maxInputTokens: 131072,
+		maxInputTokens: 256000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -228,7 +231,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go',
 		version: '2.6',
 		detail: 'Moonshot Kimi latest model via OpenCode Go',
-		maxInputTokens: 131072,
+		maxInputTokens: 256000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -245,7 +248,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go-anthropic',
 		version: '2.7',
 		detail: 'MiniMax M2.7 via OpenCode Go',
-		maxInputTokens: 131072,
+		maxInputTokens: 204800,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -253,7 +256,7 @@ export const MODELS: ModelDefinition[] = [
 			thinking: true,
 		},
 		requiresThinkingParam: true,
-		baseUrl: OPENCODE_GO_BASE_URL,
+		baseUrl: OPENCODE_GO_ANTHROPIC_BASE_URL,
 	},
 	{
 		id: 'opencode-go-minimax-m2.5',
@@ -261,7 +264,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go-anthropic',
 		version: '2.5',
 		detail: 'MiniMax M2.5 via OpenCode Go',
-		maxInputTokens: 131072,
+		maxInputTokens: 204800,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -269,7 +272,7 @@ export const MODELS: ModelDefinition[] = [
 			thinking: true,
 		},
 		requiresThinkingParam: true,
-		baseUrl: OPENCODE_GO_BASE_URL,
+		baseUrl: OPENCODE_GO_ANTHROPIC_BASE_URL,
 	},
 	{
 		id: 'opencode-go-qwen3.7-max',
@@ -277,7 +280,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go-anthropic',
 		version: '3.7',
 		detail: 'Qwen3.7 Max via OpenCode Go',
-		maxInputTokens: 131072,
+		maxInputTokens: 1000000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -285,7 +288,7 @@ export const MODELS: ModelDefinition[] = [
 			thinking: true,
 		},
 		requiresThinkingParam: true,
-		baseUrl: OPENCODE_GO_BASE_URL,
+		baseUrl: OPENCODE_GO_ANTHROPIC_BASE_URL,
 	},
 	{
 		id: 'opencode-go-qwen3.6-plus',
@@ -293,7 +296,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'opencode-go-anthropic',
 		version: '3.6',
 		detail: 'Qwen3.6 Plus via OpenCode Go',
-		maxInputTokens: 131072,
+		maxInputTokens: 1000000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -301,7 +304,7 @@ export const MODELS: ModelDefinition[] = [
 			thinking: true,
 		},
 		requiresThinkingParam: true,
-		baseUrl: OPENCODE_GO_BASE_URL,
+		baseUrl: OPENCODE_GO_ANTHROPIC_BASE_URL,
 	},
 	// ---- Xiaomi MiMo models (OpenAI-compatible) ----
 	{
@@ -310,7 +313,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'xiaomi-mimo',
 		version: 'v2.5',
 		detail: 'Xiaomi MiMo V2.5 — multimodal reasoning',
-		maxInputTokens: 131072,
+		maxInputTokens: 1000000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,
@@ -327,7 +330,7 @@ export const MODELS: ModelDefinition[] = [
 		family: 'xiaomi-mimo',
 		version: 'v2.5',
 		detail: 'Xiaomi MiMo V2.5 Pro — agentic reasoning',
-		maxInputTokens: 131072,
+		maxInputTokens: 1000000,
 		maxOutputTokens: 16384,
 		capabilities: {
 			toolCalling: 128,

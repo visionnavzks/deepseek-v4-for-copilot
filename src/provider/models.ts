@@ -70,12 +70,11 @@ function buildThinkingEffortSchema() {
 			reasoningEffort: {
 				type: 'string',
 				title: t('status.thinking'),
-				enum: ['none', 'high', 'max'],
-				enumItemLabels: [t('thinking.none'), t('thinking.high'), t('thinking.max')],
+				enum: ['none', 'high'],
+				enumItemLabels: [t('thinking.none'), t('thinking.high')],
 				enumDescriptions: [
 					t('thinking.none.desc'),
 					t('thinking.high.desc'),
-					t('thinking.max.desc'),
 				],
 				default: 'high',
 				group: 'navigation',
