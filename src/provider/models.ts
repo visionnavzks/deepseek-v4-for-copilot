@@ -91,6 +91,9 @@ function resolveDetailKey(m: ModelDefinition): string | undefined {
 	if (suffix.startsWith('deepseek-v4-')) {
 		suffix = suffix.slice('deepseek-v4-'.length);
 	}
+	if (suffix.startsWith('minimaxi-')) {
+		suffix = suffix.slice('minimaxi-'.length);
+	}
 	const key = `model.${suffix}.detail`;
 	const translated = t(key);
 	return translated !== key ? key : undefined;

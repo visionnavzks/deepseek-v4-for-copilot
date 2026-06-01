@@ -73,9 +73,14 @@ export interface DeepSeekRequest {
 	temperature?: number;
 	top_p?: number;
 	max_tokens?: number;
+	/** MiniMax-specific: use max_completion_tokens instead of max_tokens. */
+	max_completion_tokens?: number;
 	tools?: DeepSeekTool[];
 	tool_choice?: 'none' | 'auto' | 'required';
-	thinking?: { type: 'enabled' | 'disabled' };
+	/** Thinking control. DeepSeek: { type: 'enabled'|'disabled' }; MiniMax: { type: 'adaptive'|'disabled' }. */
+	thinking?: { type: 'enabled' | 'disabled' } | { type: 'adaptive' | 'disabled' };
+	/** MiniMax: split thinking into reasoning_content field. */
+	reasoning_split?: boolean;
 	reasoning_effort?: 'high' | 'max';
 	stream_options?: {
 		include_usage: boolean;

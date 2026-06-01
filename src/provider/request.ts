@@ -150,7 +150,9 @@ export async function prepareChatRequest({
 			stream: true,
 			tools,
 			tool_choice: tools && tools.length > 0 ? ('auto' as const) : undefined,
-			max_tokens: maxTokens,
+			...(modelDef?.family === 'minimaxi'
+				? { max_completion_tokens: maxTokens }
+				: { max_tokens: maxTokens }),
 			...(isThinkingModel
 				? {
 						...(modelDef?.family === 'deepseek'
@@ -160,14 +162,24 @@ export async function prepareChatRequest({
 									},
 								}
 							: {}),
+						...(modelDef?.family === 'minimaxi'
+							? {
+									thinking: {
+										type: thinkingEffort === 'none' ? ('disabled' as const) : ('adaptive' as const),
+									},
+									reasoning_split: true,
+								}
+							: {}),
 						...(thinkingEffort === 'none'
 							? {}
 							: {
 									reasoning_effort:
 										modelDef?.family === 'deepseek'
 											? thinkingEffort
-											: // Non-DeepSeek providers (Xiaomi, OpenCode Go) may not support 'max'.
-												thinkingEffort === 'max' ? 'high' : thinkingEffort,
+											: modelDef?.family === 'minimaxi'
+												? undefined
+												: // Non-DeepSeek providers (Xiaomi, OpenCode Go) may not support 'max'.
+													thinkingEffort === 'max' ? 'high' : thinkingEffort,
 								}),
 					}
 				: {}),

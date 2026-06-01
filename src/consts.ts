@@ -17,6 +17,10 @@ export const EXTERNAL_URLS = {
 		usage: 'https://platform.deepseek.com/usage',
 		status: 'https://status.deepseek.com',
 	},
+	minimaxi: {
+		apiKeys: 'https://platform.minimaxi.com/user-center/basic-information/interface-key',
+		usage: 'https://platform.minimaxi.com/user-center/payment/balance',
+	},
 } as const;
 
 /** URI path handled by this extension to reveal the output log. */
@@ -31,10 +35,10 @@ export const LANGUAGE_MODEL_CHAT_SYSTEM_ROLE = 3;
 // ---- Provider registry ----
 
 /** Unique identifier for each API provider (one key per provider). */
-export type ProviderId = 'deepseek' | 'opencode-go' | 'xiaomi-mimo';
+export type ProviderId = 'deepseek' | 'opencode-go' | 'xiaomi-mimo' | 'minimaxi';
 
 /** All supported provider IDs. */
-export const PROVIDER_IDS: readonly ProviderId[] = ['deepseek', 'opencode-go', 'xiaomi-mimo'];
+export const PROVIDER_IDS: readonly ProviderId[] = ['deepseek', 'opencode-go', 'xiaomi-mimo', 'minimaxi'];
 
 /** Maps model family → provider ID. */
 const FAMILY_TO_PROVIDER: Record<string, ProviderId> = {
@@ -42,6 +46,7 @@ const FAMILY_TO_PROVIDER: Record<string, ProviderId> = {
 	'opencode-go': 'opencode-go',
 	'opencode-go-anthropic': 'opencode-go',
 	'xiaomi-mimo': 'xiaomi-mimo',
+	minimaxi: 'minimaxi',
 };
 
 /** Resolve a model family to its provider ID. Falls back to 'deepseek' for unknown families. */
@@ -77,6 +82,7 @@ const OPENCODE_GO_BASE_URL = 'https://opencode.ai/zen/go/v1';
 /** OpenCode Go base URL for Anthropic-protocol models (AnthropicClient appends /v1/messages). */
 const OPENCODE_GO_ANTHROPIC_BASE_URL = 'https://opencode.ai/zen/go';
 const XIAOMI_MIMO_BASE_URL = 'https://api.xiaomimimo.com';
+const MINIMAX_BASE_URL = 'https://api.minimaxi.com/v1';
 
 /** Available DeepSeek models exposed through the language model provider. */
 export const MODELS: ModelDefinition[] = [
@@ -305,6 +311,58 @@ export const MODELS: ModelDefinition[] = [
 		},
 		requiresThinkingParam: true,
 		baseUrl: OPENCODE_GO_ANTHROPIC_BASE_URL,
+	},
+	// ---- MiniMax models (OpenAI-compatible) ----
+	{
+		id: 'minimaxi-m3',
+		name: 'MiniMax-M3',
+		family: 'minimaxi',
+		version: 'm3',
+		detail: 'MiniMax-M3 — frontier coding & agentic model',
+		maxInputTokens: 1000000,
+		maxOutputTokens: 131072,
+		capabilities: {
+			toolCalling: 128,
+			imageInput: true,
+			thinking: true,
+		},
+		requiresThinkingParam: true,
+		baseUrl: MINIMAX_BASE_URL,
+		nativeReasoningContent: true,
+	},
+	{
+		id: 'minimaxi-m2.7',
+		name: 'MiniMax-M2.7',
+		family: 'minimaxi',
+		version: 'm2.7',
+		detail: 'MiniMax-M2.7 — balanced reasoning model',
+		maxInputTokens: 1000000,
+		maxOutputTokens: 65536,
+		capabilities: {
+			toolCalling: 128,
+			imageInput: false,
+			thinking: true,
+		},
+		requiresThinkingParam: true,
+		baseUrl: MINIMAX_BASE_URL,
+		nativeReasoningContent: true,
+	},
+	{
+		id: 'minimaxi-m2.7-highspeed',
+		name: 'MiniMax-M2.7 High-Speed',
+		family: 'minimaxi',
+		version: 'm2.7',
+		detail: 'MiniMax-M2.7 High-Speed — faster responses',
+		maxInputTokens: 1000000,
+		maxOutputTokens: 65536,
+		capabilities: {
+			toolCalling: 128,
+			imageInput: false,
+			thinking: true,
+		},
+		requiresThinkingParam: true,
+		baseUrl: MINIMAX_BASE_URL,
+		nativeReasoningContent: true,
 	},
 	// ---- Xiaomi MiMo models (OpenAI-compatible) ----
 	{

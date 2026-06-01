@@ -1,6 +1,6 @@
 # Unstable Tools List
 
-DeepSeek V4 for Copilot Chat detected that the Tools list in the current chat may be unstable across turns.
+MultiModel for Copilot Chat detected that the Tools list in the current chat may be unstable across turns.
 
 ## Why This Happens
 

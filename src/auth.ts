@@ -100,7 +100,7 @@ export class AuthManager {
 	 * Used by the model picker to decide whether to show warning icons.
 	 */
 	async hasAnyApiKey(): Promise<boolean> {
-		for (const pid of ['deepseek', 'opencode-go', 'xiaomi-mimo'] as ProviderId[]) {
+		for (const pid of ['deepseek', 'opencode-go', 'xiaomi-mimo', 'minimaxi'] as ProviderId[]) {
 			if (await this.hasApiKeyForProvider(pid)) {
 				return true;
 			}

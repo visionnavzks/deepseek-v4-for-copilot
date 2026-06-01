@@ -1,18 +1,19 @@
 import { t } from '../i18n';
 import {
-	API_PROVIDER_HTTP_ERROR_LINKS,
-	MAX_DIAGNOSTIC_FIELD_LENGTH,
-	NETWORK_ERROR_CATEGORY_BY_CODE,
-	OFFICIAL_DEEPSEEK_API_HOST,
+    API_PROVIDER_HTTP_ERROR_LINKS,
+    MAX_DIAGNOSTIC_FIELD_LENGTH,
+    MINIMAX_API_HOST,
+    NETWORK_ERROR_CATEGORY_BY_CODE,
+    OFFICIAL_DEEPSEEK_API_HOST,
 } from './consts';
 import type {
-	ApiProviderId,
-	DeepSeekRequestErrorKind,
-	ErrorActionLink,
-	ErrorActionUrls,
-	HttpErrorLinkDefinition,
-	HttpErrorLinkStatusKey,
-	NetworkErrorCategory,
+    ApiProviderId,
+    DeepSeekRequestErrorKind,
+    ErrorActionLink,
+    ErrorActionUrls,
+    HttpErrorLinkDefinition,
+    HttpErrorLinkStatusKey,
+    NetworkErrorCategory,
 } from './types';
 export type { DeepSeekRequestErrorKind, ErrorActionUrls } from './types';
 
@@ -369,7 +370,13 @@ function truncateOptional(value: string | undefined): string | undefined {
 function identifyApiProvider(baseUrl: string): ApiProviderId | undefined {
 	try {
 		const hostname = new URL(baseUrl).hostname.toLowerCase();
-		return hostname === OFFICIAL_DEEPSEEK_API_HOST ? 'deepseek' : undefined;
+		if (hostname === OFFICIAL_DEEPSEEK_API_HOST) {
+			return 'deepseek';
+		}
+		if (hostname === MINIMAX_API_HOST) {
+			return 'minimaxi';
+		}
+		return undefined;
 	} catch {
 		return undefined;
 	}

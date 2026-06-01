@@ -1,12 +1,13 @@
-import type {
-	ApiProviderId,
-	HttpErrorLinkDefinition,
-	HttpErrorLinkStatusKey,
-	NetworkErrorCategory,
-} from './types';
 import { EXTERNAL_URLS } from '../consts';
+import type {
+    ApiProviderId,
+    HttpErrorLinkDefinition,
+    HttpErrorLinkStatusKey,
+    NetworkErrorCategory,
+} from './types';
 
 export const OFFICIAL_DEEPSEEK_API_HOST = 'api.deepseek.com';
+export const MINIMAX_API_HOST = 'api.minimaxi.com';
 export const MAX_DIAGNOSTIC_FIELD_LENGTH = 300;
 
 export const API_PROVIDER_HTTP_ERROR_LINKS: Readonly<
@@ -17,11 +18,19 @@ export const API_PROVIDER_HTTP_ERROR_LINKS: Readonly<
 			labelKey: 'error.action.createApiKey',
 			url: EXTERNAL_URLS.deepseek.apiKeys,
 		},
+		minimaxi: {
+			labelKey: 'error.action.createApiKey',
+			url: EXTERNAL_URLS.minimaxi.apiKeys,
+		},
 	},
 	402: {
 		deepseek: {
 			labelKey: 'error.action.viewUsage',
 			url: EXTERNAL_URLS.deepseek.usage,
+		},
+		minimaxi: {
+			labelKey: 'error.action.viewUsage',
+			url: EXTERNAL_URLS.minimaxi.usage,
 		},
 	},
 	'5xx': {

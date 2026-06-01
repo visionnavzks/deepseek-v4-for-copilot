@@ -1,6 +1,6 @@
 # Tools 列表不稳定
 
-DeepSeek V4 for Copilot Chat 检测到当前会话中的 Tools（工具）列表在不同轮次之间可能不稳定。
+MultiModel for Copilot Chat 检测到当前会话中的 Tools（工具）列表在不同轮次之间可能不稳定。
 
 ## 为什么会发生
 

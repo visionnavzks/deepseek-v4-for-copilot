@@ -1,7 +1,7 @@
 {
   "name": "deepseek-v4-for-copilot",
-  "displayName": "DeepSeek V4 for Copilot Chat",
-  "description": "Pick DeepSeek V4 Pro & Flash from the Copilot Chat model picker. Vision, thinking mode, agent tools — zero config, BYOK.",
+  "displayName": "MultiModel for Copilot Chat",
+  "description": "Drop DeepSeek V4, MiniMax, and more into Copilot Chat's model picker. Vision, thinking mode, agent tools — zero config, BYOK.",
   "icon": "resources/icon.png",
   "version": "0.5.3",
   "publisher": "Vizards",
@@ -23,6 +23,7 @@
     "deepseek",
     "deepseek v4",
     "deepseek-v4",
+    "minimax",
     "copilot",
     "github copilot",
     "copilot chat",
@@ -31,6 +32,8 @@
     "language model",
     "thinking",
     "reasoning",
+    "multimodel",
+    "multi-model",
     "ai",
     "chat"
   ],
@@ -83,6 +86,14 @@
       {
         "command": "deepseek-copilot.clearApiKey.xiaomi-mimo",
         "title": "%deepseek-copilot.command.clearApiKey.xiaomi-mimo%"
+      },
+      {
+        "command": "deepseek-copilot.setApiKey.minimaxi",
+        "title": "%deepseek-copilot.command.setApiKey.minimaxi%"
+      },
+      {
+        "command": "deepseek-copilot.clearApiKey.minimaxi",
+        "title": "%deepseek-copilot.command.clearApiKey.minimaxi%"
       },
       {
         "command": "deepseek-copilot.setVisionModel",
@@ -164,6 +175,10 @@
             "xiaomi-mimo": {
               "type": "string",
               "description": "%deepseek-copilot.config.apiKeys.xiaomi-mimo.description%"
+            },
+            "minimaxi": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.apiKeys.minimaxi.description%"
             }
           }
         },
@@ -199,7 +214,10 @@
             "opencode-go-qwen3.7-max": "qwen3.7-max",
             "opencode-go-qwen3.6-plus": "qwen3.6-plus",
             "xiaomi-mimo-v2.5": "mimo-v2.5",
-            "xiaomi-mimo-v2.5-pro": "mimo-v2.5-pro"
+            "xiaomi-mimo-v2.5-pro": "mimo-v2.5-pro",
+            "minimaxi-m3": "MiniMax-M3",
+            "minimaxi-m2.7": "MiniMax-M2.7",
+            "minimaxi-m2.7-highspeed": "MiniMax-M2.7-highspeed"
           },
           "description": "%deepseek-copilot.config.modelIdOverrides.description%",
           "additionalProperties": {
@@ -269,6 +287,18 @@
             "xiaomi-mimo-v2.5-pro": {
               "type": "string",
               "description": "%deepseek-copilot.config.modelIdOverrides.xiaomi-mimo-v2.5-pro.description%"
+            },
+            "minimaxi-m3": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.minimaxi-m3.description%"
+            },
+            "minimaxi-m2.7": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.minimaxi-m2.7.description%"
+            },
+            "minimaxi-m2.7-highspeed": {
+              "type": "string",
+              "description": "%deepseek-copilot.config.modelIdOverrides.minimaxi-m2.7-highspeed.description%"
             }
           }
         },
