@@ -10,6 +10,7 @@ import {
     isLanguageModelThinkingPart,
     mapRole,
     normalizeThinkingPartText,
+    normalizeToolInputSchema,
     uint8ArrayToBase64,
 } from './convert';
 
@@ -129,6 +130,6 @@ export function convertToolsAnthropic(
 	return tools.map((tool) => ({
 		name: tool.name,
 		description: tool.description,
-		input_schema: tool.inputSchema as Record<string, unknown> | undefined,
+		input_schema: normalizeToolInputSchema(tool.inputSchema),
 	}));
 }

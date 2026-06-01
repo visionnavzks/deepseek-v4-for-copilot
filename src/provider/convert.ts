@@ -1,11 +1,11 @@
 import vscode from 'vscode';
 import { safeStringify } from '../json';
 import type {
-	DeepSeekContentPart,
-	DeepSeekImagePart,
-	DeepSeekMessage,
-	DeepSeekTool,
-	DeepSeekToolCall
+    DeepSeekContentPart,
+    DeepSeekImagePart,
+    DeepSeekMessage,
+    DeepSeekTool,
+    DeepSeekToolCall
 } from '../types';
 import { parseFirstReplayMarker } from './replay';
 
@@ -82,6 +82,8 @@ export function convertMessages(
 				result.push(msg);
 			}
 		} else {
+			appendToolResults(result, toolResults);
+
 			// User message — build content (string or content parts array for native images)
 			const contentParts: DeepSeekContentPart[] = [];
 			if (content) {
@@ -89,25 +91,36 @@ export function convertMessages(
 			}
 			contentParts.push(...contentImageParts);
 
-			result.push({
-				role: role as 'user' | 'assistant',
-				content: contentParts.length === 1 && contentParts[0].type === 'text'
-					? contentParts[0].text
-					: contentParts,
-			});
+			if (contentParts.length > 0) {
+				result.push({
+					role: role as 'user' | 'assistant',
+					content: contentParts.length === 1 && contentParts[0].type === 'text'
+						? contentParts[0].text
+						: contentParts,
+				});
+			}
+
+			continue;
 		}
 
 		// Tool result messages follow their associated assistant message
-		for (const tr of toolResults) {
-			result.push({
-				role: 'tool',
-				content: tr.content,
-				tool_call_id: tr.callId,
-			});
-		}
+		appendToolResults(result, toolResults);
 	}
 
 	return result;
+}
+
+function appendToolResults(
+	result: DeepSeekMessage[],
+	toolResults: ReadonlyArray<{ callId: string; content: string }>,
+): void {
+	for (const tr of toolResults) {
+		result.push({
+			role: 'tool',
+			content: tr.content,
+			tool_call_id: tr.callId,
+		});
+	}
 }
 
 function getReasoningContent(
@@ -152,6 +165,19 @@ export function uint8ArrayToBase64(data: Uint8Array): string {
 	return Buffer.from(data).toString('base64');
 }
 
+export function normalizeToolInputSchema(inputSchema: unknown): Record<string, unknown> {
+	const schema = isRecord(inputSchema) ? { ...inputSchema } : {};
+	schema.type = 'object';
+	if (!isRecord(schema.properties)) {
+		schema.properties = {};
+	}
+	return schema;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 /**
  * Convert VS Code tool definitions to DeepSeek format.
  */
@@ -172,7 +198,7 @@ export function convertTools(
 			function: {
 				name: tool.name,
 				description: tool.description,
-				parameters: (tool.inputSchema ?? {}) as Record<string, unknown>,
+				parameters: normalizeToolInputSchema(tool.inputSchema),
 			},
 		});
 	}
