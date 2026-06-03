@@ -13,11 +13,11 @@ import type { ConversationSegment } from '../segment';
 import { ACTIVATE_TOOL_PREFIX } from '../tools/consts';
 import type { VisionResolutionStats } from '../vision/index';
 import {
-    classifyDeepSeekRequest,
-    classifyProviderRequest,
-    formatModelFields,
-    formatRequestLogLine,
-    type RequestKind,
+	classifyDeepSeekRequest,
+	classifyProviderRequest,
+	formatModelFields,
+	formatRequestLogLine,
+	type RequestKind,
 } from './classifier';
 
 let dumpCounter = 0;
@@ -670,7 +670,12 @@ function summarizeDeepSeekSystemPrompt(messages: readonly DeepSeekMessage[]): Sy
 		return createSystemPromptSummary(null, null, '', customizations);
 	}
 
-	return createSystemPromptSummary(0, message.role, extractMessageText(message.content ?? ''), customizations);
+	return createSystemPromptSummary(
+		0,
+		message.role,
+		extractMessageText(message.content ?? ''),
+		customizations,
+	);
 }
 
 function createSystemPromptSummary(

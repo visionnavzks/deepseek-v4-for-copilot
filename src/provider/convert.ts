@@ -1,11 +1,11 @@
 import vscode from 'vscode';
 import { safeStringify } from '../json';
 import type {
-    DeepSeekContentPart,
-    DeepSeekImagePart,
-    DeepSeekMessage,
-    DeepSeekTool,
-    DeepSeekToolCall
+	DeepSeekContentPart,
+	DeepSeekImagePart,
+	DeepSeekMessage,
+	DeepSeekTool,
+	DeepSeekToolCall,
 } from '../types';
 import { parseFirstReplayMarker } from './replay';
 
@@ -31,7 +31,10 @@ export function convertMessages(
 		for (const part of message.content) {
 			if (part instanceof vscode.LanguageModelTextPart) {
 				content += part.value;
-			} else if (part instanceof vscode.LanguageModelDataPart && part.mimeType.startsWith('image/')) {
+			} else if (
+				part instanceof vscode.LanguageModelDataPart &&
+				part.mimeType.startsWith('image/')
+			) {
 				// Native image passthrough — convert to OpenAI-compatible image_url content part
 				const base64 = uint8ArrayToBase64(part.data);
 				contentImageParts.push({
@@ -94,9 +97,10 @@ export function convertMessages(
 			if (contentParts.length > 0) {
 				result.push({
 					role: role as 'user' | 'assistant',
-					content: contentParts.length === 1 && contentParts[0].type === 'text'
-						? contentParts[0].text
-						: contentParts,
+					content:
+						contentParts.length === 1 && contentParts[0].type === 'text'
+							? contentParts[0].text
+							: contentParts,
 				});
 			}
 
@@ -222,5 +226,3 @@ export function countMessageChars(messages: DeepSeekMessage[]): number {
 	}
 	return total;
 }
-
-

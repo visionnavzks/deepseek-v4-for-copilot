@@ -1,5 +1,5 @@
 import vscode from 'vscode';
-import { PROVIDER_IDS } from '../consts';
+import { PROVIDER_IDS, VENDOR } from '../consts';
 import { logger } from '../logger';
 import { DeepSeekChatProvider } from '../provider';
 
@@ -9,25 +9,24 @@ export async function registerProvider(
 	const provider = new DeepSeekChatProvider(context);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('deepseek-copilot.setApiKey', () => provider.configureApiKey()),
-		vscode.commands.registerCommand('deepseek-copilot.clearApiKey', () => provider.clearApiKey()),
-		vscode.commands.registerCommand('deepseek-copilot.setVisionModel', () =>
-			provider.setVisionProxyModel(),
+		vscode.commands.registerCommand('multimodel-copilot.setApiKey', () =>
+			provider.configureApiKey(),
 		),
+		vscode.commands.registerCommand('multimodel-copilot.clearApiKey', () => provider.clearApiKey()),
 
 		// Per-provider key commands
 		...PROVIDER_IDS.map((pid) =>
-			vscode.commands.registerCommand(`deepseek-copilot.setApiKey.${pid}`, () =>
+			vscode.commands.registerCommand(`multimodel-copilot.setApiKey.${pid}`, () =>
 				provider.configureApiKeyForProvider(pid),
 			),
 		),
 		...PROVIDER_IDS.map((pid) =>
-			vscode.commands.registerCommand(`deepseek-copilot.clearApiKey.${pid}`, () =>
+			vscode.commands.registerCommand(`multimodel-copilot.clearApiKey.${pid}`, () =>
 				provider.clearApiKeyForProvider(pid),
 			),
 		),
 
-		vscode.lm.registerLanguageModelChatProvider('deepseek', provider),
+		vscode.lm.registerLanguageModelChatProvider(VENDOR, provider),
 	);
 
 	// Copilot Chat can serve cached model info without configurationSchema.

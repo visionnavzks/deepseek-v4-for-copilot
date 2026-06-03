@@ -2,10 +2,10 @@ import type { CancellationToken } from 'vscode';
 import { safeStringify } from '../json';
 import { logger } from '../logger';
 import type {
-    AnthropicRequest,
-    AnthropicSSEEvent,
-    DeepSeekToolCall,
-    StreamCallbacks,
+	AnthropicRequest,
+	AnthropicSSEEvent,
+	DeepSeekToolCall,
+	StreamCallbacks,
 } from '../types';
 import { createStreamContext, getDiagnosticMessage, isAbortError, streamFetch } from './base';
 import { createHttpError, normalizeRequestError } from './error';
@@ -179,5 +179,3 @@ export class AnthropicClient {
 		}
 	}
 }
-
-

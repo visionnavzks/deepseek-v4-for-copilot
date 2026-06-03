@@ -2,10 +2,10 @@ import type { CancellationToken } from 'vscode';
 import { safeStringify } from '../json';
 import { logger } from '../logger';
 import type {
-    DeepSeekRequest,
-    DeepSeekStreamChunk,
-    DeepSeekToolCall,
-    StreamCallbacks,
+	DeepSeekRequest,
+	DeepSeekStreamChunk,
+	DeepSeekToolCall,
+	StreamCallbacks,
 } from '../types';
 import { createStreamContext, getDiagnosticMessage, isAbortError, streamFetch } from './base';
 import { createHttpError, normalizeRequestError } from './error';
@@ -177,5 +177,3 @@ export class DeepSeekClient {
 		}
 	}
 }
-
-

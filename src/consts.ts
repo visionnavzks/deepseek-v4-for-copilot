@@ -8,8 +8,30 @@ import type { ModelDefinition } from './types';
  * no secrets API). For run-time settings reads see `config.ts`.
  */
 
-/** VS Code configuration section prefix for all extension settings. */
-export const CONFIG_SECTION = 'deepseek-copilot';
+/**
+ * Brand string used to derive every extension-namespace identifier.
+ *
+ * To rebrand, change this single value and verify the `package.json` keys
+ * listed on each derived constant still match (package.json is JSON and
+ * cannot import these constants).
+ */
+export const BRAND = 'multimodel';
+
+/**
+ * Identifier passed to `vscode.lm.registerLanguageModelChatProvider` and used
+ * to scope `vscode.lm.selectChatModels({ vendor })` calls to models owned by
+ * this extension.
+ *
+ * Must stay in sync with `contributes.languageModelChatProviders[0].vendor` in
+ * `package.json` — VS Code requires the two to match.
+ */
+export const VENDOR = BRAND;
+
+/** Extension ID (matches `package.json#name`). */
+export const EXTENSION_ID = `${BRAND}-for-copilot`;
+
+/** VS Code configuration section / command / NLS prefix for all extension settings. */
+export const CONFIG_SECTION = `${BRAND}-copilot`;
 
 export const EXTERNAL_URLS = {
 	deepseek: {
@@ -38,7 +60,12 @@ export const LANGUAGE_MODEL_CHAT_SYSTEM_ROLE = 3;
 export type ProviderId = 'deepseek' | 'opencode-go' | 'xiaomi-mimo' | 'minimaxi';
 
 /** All supported provider IDs. */
-export const PROVIDER_IDS: readonly ProviderId[] = ['deepseek', 'opencode-go', 'xiaomi-mimo', 'minimaxi'];
+export const PROVIDER_IDS: readonly ProviderId[] = [
+	'deepseek',
+	'opencode-go',
+	'xiaomi-mimo',
+	'minimaxi',
+];
 
 /** Maps model family → provider ID. */
 const FAMILY_TO_PROVIDER: Record<string, ProviderId> = {
@@ -57,10 +84,10 @@ export function resolveProviderId(family: string): ProviderId {
 // ---- Secret keys ----
 
 /** Legacy SecretStorage key for the single API key (pre-migration). */
-export const API_KEY_SECRET = 'deepseek-copilot.apiKey';
+export const API_KEY_SECRET = `${CONFIG_SECTION}.apiKey`;
 
 /** SecretStorage key pattern for per-provider API keys. */
-export const PROVIDER_KEY_SECRET_PREFIX = 'deepseek-copilot.apiKey.';
+export const PROVIDER_KEY_SECRET_PREFIX = `${CONFIG_SECTION}.apiKey.`;
 
 /** Build the SecretStorage key for a specific provider. */
 export function providerKeySecret(providerId: ProviderId): string {
@@ -68,12 +95,15 @@ export function providerKeySecret(providerId: ProviderId): string {
 }
 
 /** memento key tracking whether the welcome walkthrough has been shown. */
-export const WELCOME_SHOWN_KEY = 'deepseek-copilot.welcomeShown';
+export const WELCOME_SHOWN_KEY = `${CONFIG_SECTION}.welcomeShown`;
 
 // ---- Walkthrough ----
 
-/** Walkthrough contribution ID. */
-export const WALKTHROUGH_ID = 'Vizards.deepseek-v4-for-copilot#deepseekGettingStarted';
+/**
+ * Walkthrough contribution ID. Must stay in sync with
+ * `contributes.walkthroughs[0].id` (`${BRAND}GettingStarted`) in `package.json`.
+ */
+export const WALKTHROUGH_ID = `Vizards.${EXTENSION_ID}#${BRAND}GettingStarted`;
 
 // ---- Model registry ----
 

@@ -14,7 +14,7 @@ const ACTION_URLS: readonly ActionUrlDefinition[] = [
 	{
 		key: 'configureApiKey',
 		path: CONFIGURE_API_KEY_URI_PATH,
-		handle: () => vscode.commands.executeCommand('deepseek-copilot.setApiKey'),
+		handle: () => vscode.commands.executeCommand('multimodel-copilot.setApiKey'),
 		resolveFailureMessage: 'Failed to resolve DeepSeek set API key URI',
 	},
 	{

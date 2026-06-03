@@ -1,17 +1,17 @@
 import vscode from 'vscode';
 import { safeStringify } from '../json';
 import type {
-    AnthropicContentBlock,
-    AnthropicMessage,
-    AnthropicTool,
-    DeepSeekToolCall,
+	AnthropicContentBlock,
+	AnthropicMessage,
+	AnthropicTool,
+	DeepSeekToolCall,
 } from '../types';
 import {
-    isLanguageModelThinkingPart,
-    mapRole,
-    normalizeThinkingPartText,
-    normalizeToolInputSchema,
-    uint8ArrayToBase64,
+	isLanguageModelThinkingPart,
+	mapRole,
+	normalizeThinkingPartText,
+	normalizeToolInputSchema,
+	uint8ArrayToBase64,
 } from './convert';
 
 /**
@@ -34,7 +34,10 @@ export function convertMessagesAnthropic(
 		for (const part of message.content) {
 			if (part instanceof vscode.LanguageModelTextPart) {
 				textContent += part.value;
-			} else if (part instanceof vscode.LanguageModelDataPart && part.mimeType.startsWith('image/')) {
+			} else if (
+				part instanceof vscode.LanguageModelDataPart &&
+				part.mimeType.startsWith('image/')
+			) {
 				// Native image passthrough — convert to Anthropic image content block
 				const base64 = uint8ArrayToBase64(part.data);
 				contentBlocks.push({

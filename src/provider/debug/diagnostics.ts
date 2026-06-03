@@ -3,7 +3,13 @@ import vscode from 'vscode';
 import { getDebugLoggingEnabled } from '../../config';
 import { LANGUAGE_MODEL_CHAT_SYSTEM_ROLE } from '../../consts';
 import { logger } from '../../logger';
-import { extractMessageText, type DeepSeekMessage, type DeepSeekRequest, type DeepSeekTool, type DeepSeekUsage } from '../../types';
+import {
+	extractMessageText,
+	type DeepSeekMessage,
+	type DeepSeekRequest,
+	type DeepSeekTool,
+	type DeepSeekUsage,
+} from '../../types';
 import { REPLAY_MARKER_MIME, parseFirstReplayMarker } from '../replay';
 import type { ConversationSegment } from '../segment';
 import { ACTIVATE_TOOL_PREFIX } from '../tools/consts';

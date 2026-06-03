@@ -1,5 +1,11 @@
 import vscode from 'vscode';
-import { API_KEY_SECRET, MODELS, providerKeySecret, resolveProviderId, type ProviderId } from './consts';
+import {
+	API_KEY_SECRET,
+	MODELS,
+	providerKeySecret,
+	resolveProviderId,
+	type ProviderId,
+} from './consts';
 import { t } from './i18n';
 
 /**
@@ -7,10 +13,10 @@ import { t } from './i18n';
  * fallback to extension settings (less secure, for CI/automation).
  *
  * Key resolution order:
- *   1. SecretStorage `deepseek-copilot.apiKey.<providerId>` (per-provider key)
- *   2. SecretStorage `deepseek-copilot.apiKey` (legacy single key — DeepSeek only)
- *   3. Settings `deepseek-copilot.apiKeys.<providerId>` (per-provider setting)
- *   4. Settings `deepseek-copilot.apiKey` (legacy single setting — DeepSeek only)
+ *   1. SecretStorage `multimodel-copilot.apiKey.<providerId>` (per-provider key)
+ *   2. SecretStorage `multimodel-copilot.apiKey` (legacy single key — DeepSeek only)
+ *   3. Settings `multimodel-copilot.apiKeys.<providerId>` (per-provider setting)
+ *   4. Settings `multimodel-copilot.apiKey` (legacy single setting — DeepSeek only)
  */
 export class AuthManager {
 	private readonly secretStorage: vscode.SecretStorage;
@@ -42,7 +48,7 @@ export class AuthManager {
 		}
 
 		// 3. Per-provider settings
-		const config = vscode.workspace.getConfiguration('deepseek-copilot');
+		const config = vscode.workspace.getConfiguration('multimodel-copilot');
 		const providerSettings = config.get<Record<string, string>>('apiKeys');
 		const providerSetting = providerSettings?.[providerId]?.trim();
 		if (providerSetting) {
@@ -147,7 +153,8 @@ export class AuthManager {
 		const promptText = t(promptKey);
 		const prompt = promptText !== promptKey ? promptText : t('auth.prompt');
 		const placeholderText = t(placeholderKey);
-		const placeholder = placeholderText !== placeholderKey ? placeholderText : t('auth.placeholder');
+		const placeholder =
+			placeholderText !== placeholderKey ? placeholderText : t('auth.placeholder');
 
 		const apiKey = await vscode.window.showInputBox({
 			prompt,

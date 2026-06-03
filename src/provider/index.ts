@@ -1,7 +1,7 @@
 import vscode from 'vscode';
 import { AuthManager } from '../auth';
 import { getStabilizeToolListEnabled } from '../config';
-import { MODELS, resolveProviderId, type ProviderId } from '../consts';
+import { MODELS, resolveProviderId, VENDOR, type ProviderId } from '../consts';
 import { t } from '../i18n';
 import { logger } from '../logger';
 import {
@@ -50,13 +50,13 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 			// Settings-based fallback API key + vision model changes.
 			vscode.workspace.onDidChangeConfiguration((e) => {
 				if (
-					e.affectsConfiguration('deepseek-copilot.apiKey') ||
-					e.affectsConfiguration('deepseek-copilot.apiKeys')
+					e.affectsConfiguration('multimodel-copilot.apiKey') ||
+					e.affectsConfiguration('multimodel-copilot.apiKeys')
 				) {
 					this.onDidChangeLanguageModelChatInformationEmitter.fire();
 				}
 
-				if (e.affectsConfiguration('deepseek-copilot.visionModel')) {
+				if (e.affectsConfiguration('multimodel-copilot.visionModel')) {
 					this.vision.reset();
 				}
 			}),
@@ -64,7 +64,10 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 			// When another window sets/clears an API key, refresh this window's
 			// model picker so the warning state stays in sync.
 			context.secrets.onDidChange((e) => {
-				if (e.key === 'deepseek-copilot.apiKey' || e.key.startsWith('deepseek-copilot.apiKey.')) {
+				if (
+					e.key === 'multimodel-copilot.apiKey' ||
+					e.key.startsWith('multimodel-copilot.apiKey.')
+				) {
 					this.onDidChangeLanguageModelChatInformationEmitter.fire();
 				}
 			}),
@@ -118,7 +121,7 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 		// instead of leaving stale entries behind after deactivate. The returned
 		// model list itself is unused — we only call this for its side effect.
 		try {
-			await vscode.lm.selectChatModels({ vendor: 'deepseek' });
+			await vscode.lm.selectChatModels({ vendor: VENDOR });
 		} catch (error) {
 			logger.warn('Failed to refresh MultiModel models during deactivate', error);
 		}
