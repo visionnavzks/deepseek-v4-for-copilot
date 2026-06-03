@@ -8,11 +8,11 @@ import type { AnthropicRequest, DeepSeekRequest, StreamCallbacks } from '../type
 import { convertMessages, countMessageChars } from './convert';
 import { convertMessagesAnthropic, convertToolsAnthropic } from './convert-anthropic';
 import {
-    classifyDeepSeekRequest,
-    dumpDeepSeekRequest,
-    type CacheDiagnosticsRecorder,
-    type CacheDiagnosticsRun,
-    type RequestKind,
+	classifyDeepSeekRequest,
+	dumpDeepSeekRequest,
+	type CacheDiagnosticsRecorder,
+	type CacheDiagnosticsRun,
+	type RequestKind,
 } from './debug';
 import { getConfiguredThinkingEffort, type ModelConfigurationOptions } from './models';
 import type { ReplayMarkerMetadata } from './replay';
@@ -46,6 +46,7 @@ export interface PrepareChatRequestOptions {
 	token: vscode.CancellationToken;
 	cacheDiagnostics: CacheDiagnosticsRecorder;
 	getVisionModel: () => Promise<vscode.LanguageModelChat | undefined>;
+	progress: vscode.Progress<vscode.LanguageModelResponsePart>;
 }
 
 export function streamPreparedRequest(
@@ -77,6 +78,7 @@ export async function prepareChatRequest({
 	token,
 	cacheDiagnostics,
 	getVisionModel,
+	progress,
 }: PrepareChatRequestOptions): Promise<PreparedChatRequest> {
 	const apiKey = await authManager.getApiKeyForModel(modelInfo.id);
 	if (!apiKey) {
@@ -89,14 +91,21 @@ export async function prepareChatRequest({
 	const thinkingEffort = getConfiguredThinkingEffort(options as ModelConfigurationOptions);
 	const maxTokens = getMaxTokens();
 
-	const visionResolution = await resolveImageMessages(
-		messages,
-		token,
-		getVisionModel,
-		modelDef?.capabilities.imageInput ?? false,
-	);
+	const [visionResolution, tools] = await Promise.all([
+		resolveImageMessages(
+			messages,
+			token,
+			getVisionModel,
+			modelDef?.capabilities.imageInput ?? false,
+			{
+				onVisionStarted: () => {
+					progress.report(new vscode.LanguageModelTextPart(t('vision.inProgress')));
+				},
+			},
+		),
+		Promise.resolve(prepareRequestTools(modelDef?.capabilities.toolCalling, options)),
+	]);
 	const resolvedMessages = visionResolution.messages;
-	const tools = prepareRequestTools(modelDef?.capabilities.toolCalling, options);
 
 	const isAnthropicFamily = modelDef?.family === 'opencode-go-anthropic';
 
@@ -175,7 +184,9 @@ export async function prepareChatRequest({
 											: modelDef?.family === 'minimaxi'
 												? undefined
 												: // Non-DeepSeek providers (Xiaomi, OpenCode Go) may not support 'max'.
-													thinkingEffort === 'max' ? 'high' : thinkingEffort,
+													thinkingEffort === 'max'
+													? 'high'
+													: thinkingEffort,
 								}),
 					}
 				: {}),

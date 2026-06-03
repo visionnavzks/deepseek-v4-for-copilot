@@ -16,6 +16,10 @@ export interface VisionResolutionStats {
 	invalidMarkerVisionMetadata: number;
 }
 
+export interface VisionResolutionOptions {
+	onVisionStarted?: () => void;
+}
+
 export interface VisionResolutionResult {
 	messages: readonly vscode.LanguageModelChatRequestMessage[];
 	stats: VisionResolutionStats;

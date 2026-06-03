@@ -5,9 +5,9 @@ import { MODELS, resolveProviderId, type ProviderId } from '../consts';
 import { t } from '../i18n';
 import { logger } from '../logger';
 import {
-    classifyProviderRequest,
-    createCacheDiagnosticsRecorder,
-    dumpProviderInput,
+	classifyProviderRequest,
+	createCacheDiagnosticsRecorder,
+	dumpProviderInput,
 } from './debug';
 import { toChatInfo } from './models';
 import { prepareChatRequest } from './request';
@@ -64,10 +64,7 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 			// When another window sets/clears an API key, refresh this window's
 			// model picker so the warning state stays in sync.
 			context.secrets.onDidChange((e) => {
-				if (
-					e.key === 'deepseek-copilot.apiKey' ||
-					e.key.startsWith('deepseek-copilot.apiKey.')
-				) {
+				if (e.key === 'deepseek-copilot.apiKey' || e.key.startsWith('deepseek-copilot.apiKey.')) {
 					this.onDidChangeLanguageModelChatInformationEmitter.fire();
 				}
 			}),
@@ -144,9 +141,7 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 
 		return Promise.all(
 			MODELS.map(async (model) => {
-				const hasKey = await this.authManager.hasApiKeyForProvider(
-					resolveProviderId(model.family),
-				);
+				const hasKey = await this.authManager.hasApiKeyForProvider(resolveProviderId(model.family));
 				return toChatInfo(model, hasKey);
 			}),
 		);
@@ -195,6 +190,7 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 			token,
 			cacheDiagnostics: this.cacheDiagnostics,
 			getVisionModel: () => this.vision.get(),
+			progress,
 		});
 
 		return streamChatCompletion({

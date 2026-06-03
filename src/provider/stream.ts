@@ -17,10 +17,19 @@ import type { PreparedChatRequest } from './request';
 import { streamPreparedRequest } from './request';
 
 interface ResponseStreamState {
-	accumulatedReasoning: string;
+	reasoningChunks: string[];
+	reasoningTextLength: number;
 	emittedToolCallIds: string[];
 	initialResponseNoticeReported: boolean;
 	replayMarkerReported: boolean;
+}
+
+type PendingPart = { kind: 'content'; text: string } | { kind: 'thinking'; text: string };
+
+interface PartBatcher {
+	enqueueContent: (text: string) => void;
+	enqueueThinking: (text: string) => void;
+	flush: () => void;
 }
 
 const COPILOT_USAGE_DATA_PART_MIME = 'usage';
@@ -43,24 +52,28 @@ export function streamChatCompletion({
 	setCharsPerToken,
 }: StreamChatCompletionOptions): Promise<void> {
 	const state: ResponseStreamState = {
-		accumulatedReasoning: '',
+		reasoningChunks: [],
+		reasoningTextLength: 0,
 		emittedToolCallIds: [],
 		initialResponseNoticeReported: false,
 		replayMarkerReported: false,
 	};
 	const cancelListener = observeCancellationToken(token, prepared.cacheDiagnostics);
+	const batcher = createPartBatcher(progress, token);
 
 	return streamPreparedRequest(
 		prepared,
 		{
 			onContent: (content: string) => {
 				reportInitialResponseNoticeOnce(progress, state, initialResponseNotice);
-				progress.report(new vscode.LanguageModelTextPart(content));
+				batcher.enqueueContent(content);
 			},
 
 			onThinking: (text: string) => {
 				reportInitialResponseNoticeOnce(progress, state, initialResponseNotice);
-				handleThinking(text, state, progress);
+				state.reasoningChunks.push(text);
+				state.reasoningTextLength += text.length;
+				batcher.enqueueThinking(text);
 			},
 
 			onToolCall: (toolCall: DeepSeekToolCall) => {
@@ -105,8 +118,63 @@ export function streamChatCompletion({
 			}
 		})
 		.finally(() => {
+			batcher.flush();
 			cancelListener.dispose();
 		});
+}
+
+function createPartBatcher(
+	progress: vscode.Progress<vscode.LanguageModelResponsePart>,
+	token: vscode.CancellationToken,
+): PartBatcher {
+	const pending: PendingPart[] = [];
+	let scheduled = false;
+
+	const flush = (): void => {
+		scheduled = false;
+		if (token.isCancellationRequested || pending.length === 0) {
+			pending.length = 0;
+			return;
+		}
+		let i = 0;
+		while (i < pending.length) {
+			const kind = pending[i].kind;
+			let text = '';
+			while (i < pending.length && pending[i].kind === kind) {
+				text += pending[i].text;
+				i += 1;
+			}
+			if (kind === 'content') {
+				progress.report(new vscode.LanguageModelTextPart(text));
+			} else {
+				// LanguageModelThinkingPart is a proposed API; the project root augmentation provides types.
+				progress.report(
+					new vscode.LanguageModelThinkingPart(text) as unknown as vscode.LanguageModelResponsePart,
+				);
+			}
+		}
+		pending.length = 0;
+	};
+
+	const schedule = (): void => {
+		if (scheduled) return;
+		scheduled = true;
+		queueMicrotask(flush);
+	};
+
+	return {
+		enqueueContent: (text) => {
+			if (!text) return;
+			pending.push({ kind: 'content', text });
+			schedule();
+		},
+		enqueueThinking: (text) => {
+			if (!text) return;
+			pending.push({ kind: 'thinking', text });
+			schedule();
+		},
+		flush,
+	};
 }
 
 function reportInitialResponseNoticeOnce(
@@ -148,7 +216,7 @@ function reportSkippedReplayMarkerIfNeeded(
 		status: 'skipped',
 		reason,
 		visionTextChars: prepared.visionMarkerTextChars,
-		reasoningTextChars: state.accumulatedReasoning.length || undefined,
+		reasoningTextChars: state.reasoningTextLength || undefined,
 		error,
 	});
 }
@@ -166,7 +234,7 @@ function reportReplayMarker(
 			trigger,
 			reason: 'no-replay-data',
 			visionTextChars: prepared.visionMarkerTextChars,
-			reasoningTextChars: state.accumulatedReasoning.length || undefined,
+			reasoningTextChars: state.reasoningTextLength || undefined,
 		});
 		return;
 	}
@@ -179,14 +247,14 @@ function reportReplayMarker(
 			trigger,
 			markerBytes: markerPart.data.byteLength,
 			visionTextChars: prepared.visionMarkerTextChars,
-			reasoningTextChars: state.accumulatedReasoning.length || undefined,
+			reasoningTextChars: state.reasoningTextLength || undefined,
 		});
 	} catch (error) {
 		prepared.cacheDiagnostics.onReplayMarkerReport({
 			status: 'failed',
 			trigger,
 			visionTextChars: prepared.visionMarkerTextChars,
-			reasoningTextChars: state.accumulatedReasoning.length || undefined,
+			reasoningTextChars: state.reasoningTextLength || undefined,
 			error,
 		});
 		logger.warn(
@@ -202,21 +270,8 @@ function getReplayMarkerMetadata(
 ): ReplayMarkerMetadata {
 	return {
 		...prepared.replayMarkerMetadata,
-		reasoningText: state.accumulatedReasoning || undefined,
+		reasoningText: state.reasoningChunks.length > 0 ? state.reasoningChunks.join('') : undefined,
 	};
-}
-
-function handleThinking(
-	text: string,
-	state: ResponseStreamState,
-	progress: vscode.Progress<vscode.LanguageModelResponsePart>,
-): void {
-	state.accumulatedReasoning += text;
-
-	// LanguageModelThinkingPart is a proposed API; the project root augmentation provides types.
-	progress.report(
-		new vscode.LanguageModelThinkingPart(text) as unknown as vscode.LanguageModelResponsePart,
-	);
 }
 
 function handleToolCall(
@@ -242,7 +297,7 @@ function finalizeReplayDiagnostics(
 	cacheDiagnostics: CacheDiagnosticsRun,
 ): void {
 	cacheDiagnostics.onDone({
-		reasoningTextChars: state.accumulatedReasoning.length,
+		reasoningTextChars: state.reasoningTextLength,
 		emittedToolCalls: state.emittedToolCallIds.length,
 		trailingToolResults: trailingToolResultIds.length,
 	});

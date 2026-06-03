@@ -50,7 +50,8 @@ const zh: Translations = {
 	'auth.emptyValidation': 'API Key 不能为空',
 	'auth.saved': 'API Key 已安全保存。',
 	'auth.removed': 'API Key 已移除。',
-	'auth.notConfigured': 'DeepSeek API Key 未配置，请在命令面板运行 "MultiModel: 设置 DeepSeek API Key"。',
+	'auth.notConfigured':
+		'DeepSeek API Key 未配置，请在命令面板运行 "MultiModel: 设置 DeepSeek API Key"。',
 
 	// Thinking Effort — short labels for model picker dropdown
 	'status.thinking': '思考模式',
@@ -70,6 +71,7 @@ const zh: Translations = {
 	'vision.notFound': '未找到视觉模型 "{0}"',
 	'vision.unavailable': '无可用视觉模型，图片已忽略。',
 	'vision.proxyError': '视觉代理异常：',
+	'vision.inProgress': '\n*[描述图片中…]*\n',
 
 	// Request
 	'request.toolsLimitExceeded':
@@ -176,6 +178,7 @@ const en: Translations = {
 	'vision.notFound': 'Vision model "{0}" not found',
 	'vision.unavailable': 'No vision models available, image(s) ignored',
 	'vision.proxyError': 'Vision proxy error:',
+	'vision.inProgress': '\n*[Describing image…]*\n',
 
 	// Request
 	'request.toolsLimitExceeded':
@@ -229,7 +232,8 @@ const en: Translations = {
 	'error.unknown': 'Request failed: {0}',
 
 	// Extension
-	'extension.activateFailed': 'MultiModel failed to activate. Run "MultiModel: Show Logs" for details.',
+	'extension.activateFailed':
+		'MultiModel failed to activate. Run "MultiModel: Show Logs" for details.',
 	'extension.deactivateFailed': 'Failed to prepare MultiModel provider for deactivate',
 	'extension.welcomeFailed': 'Failed to show MultiModel welcome prompt',
 	'extension.openRequestDumpsFolderFailed':

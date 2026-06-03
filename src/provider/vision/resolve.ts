@@ -4,12 +4,16 @@ import { toWellFormedString } from '../../json';
 import { logger } from '../../logger';
 import { parseFirstReplayMarker } from '../replay';
 import {
-    IMAGE_DESCRIPTION_PREFIX,
-    IMAGE_DESCRIPTION_SUFFIX,
-    IMAGE_DESCRIPTION_UNAVAILABLE,
+	IMAGE_DESCRIPTION_PREFIX,
+	IMAGE_DESCRIPTION_SUFFIX,
+	IMAGE_DESCRIPTION_UNAVAILABLE,
 } from './consts';
 import { getVisionPrompt } from './model';
-import type { VisionResolutionResult, VisionResolutionStats } from './types';
+import type {
+	VisionResolutionOptions,
+	VisionResolutionResult,
+	VisionResolutionStats,
+} from './types';
 
 /**
  * Resolve image parts without treating image bytes as persistent identity.
@@ -25,6 +29,7 @@ export async function resolveImageMessages(
 	token: vscode.CancellationToken,
 	getModel: () => Promise<vscode.LanguageModelChat | undefined>,
 	nativeVision = false,
+	options: VisionResolutionOptions = {},
 ): Promise<VisionResolutionResult> {
 	const stats = createVisionResolutionStats();
 	collectInputImageStats(messages, stats);
@@ -75,6 +80,7 @@ export async function resolveImageMessages(
 			// Proxy path: describe images as text via the vision proxy model.
 			if (!visionModelRequested) {
 				visionModelRequested = true;
+				options.onVisionStarted?.();
 				visionModel = await getModel();
 			}
 			const visionText = await resolveCurrentVisionText(
