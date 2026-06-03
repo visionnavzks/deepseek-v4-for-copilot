@@ -26,9 +26,7 @@ export interface StreamContext {
  * Returns the controller and a disposable listener; caller *must* call
  * `listener.dispose()` in a `finally` block.
  */
-export function createStreamContext(
-	cancellationToken?: CancellationToken,
-): StreamContext {
+export function createStreamContext(cancellationToken?: CancellationToken): StreamContext {
 	const controller = new AbortController();
 	const cancelListener = cancellationToken?.onCancellationRequested(() => {
 		controller.abort();
@@ -51,7 +49,8 @@ export function isAbortError(error: unknown): boolean {
  * falling back to the plain Error `message`.
  */
 export function getDiagnosticMessage(error: Error): string {
-	return 'diagnosticMessage' in error && typeof (error as Record<string, unknown>).diagnosticMessage === 'string'
+	return 'diagnosticMessage' in error &&
+		typeof (error as Record<string, unknown>).diagnosticMessage === 'string'
 		? (error as Record<string, string>).diagnosticMessage
 		: error.message;
 }

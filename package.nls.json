@@ -48,8 +48,6 @@
   "deepseek-copilot.config.modelIdOverrides.opencode-go-glm-5.description": "API model ID for GLM-5 (OpenCode Go)",
   "deepseek-copilot.config.modelIdOverrides.opencode-go-kimi-k2.5.description": "API model ID for Kimi K2.5 (OpenCode Go)",
   "deepseek-copilot.config.modelIdOverrides.opencode-go-kimi-k2.6.description": "API model ID for Kimi K2.6 (OpenCode Go)",
-  "deepseek-copilot.config.modelIdOverrides.opencode-go-minimax-m2.7.description": "API model ID for MiniMax M2.7 (OpenCode Go)",
-  "deepseek-copilot.config.modelIdOverrides.opencode-go-minimax-m2.5.description": "API model ID for MiniMax M2.5 (OpenCode Go)",
   "deepseek-copilot.config.modelIdOverrides.opencode-go-qwen3.7-max.description": "API model ID for Qwen3.7 Max (OpenCode Go)",
   "deepseek-copilot.config.modelIdOverrides.opencode-go-qwen3.6-plus.description": "API model ID for Qwen3.6 Plus (OpenCode Go)",
   "deepseek-copilot.config.modelIdOverrides.xiaomi-mimo-v2.5.description": "API model ID for Xiaomi MiMo V2.5",

@@ -79,10 +79,7 @@ function buildThinkingEffortSchema() {
 				title: t('status.thinking'),
 				enum: ['none', 'high'],
 				enumItemLabels: [t('thinking.none'), t('thinking.high')],
-				enumDescriptions: [
-					t('thinking.none.desc'),
-					t('thinking.high.desc'),
-				],
+				enumDescriptions: [t('thinking.none.desc'), t('thinking.high.desc')],
 				default: 'high',
 				group: 'navigation',
 			},

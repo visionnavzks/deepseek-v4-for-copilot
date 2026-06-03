@@ -38,7 +38,12 @@ export const LANGUAGE_MODEL_CHAT_SYSTEM_ROLE = 3;
 export type ProviderId = 'deepseek' | 'opencode-go' | 'xiaomi-mimo' | 'minimaxi';
 
 /** All supported provider IDs. */
-export const PROVIDER_IDS: readonly ProviderId[] = ['deepseek', 'opencode-go', 'xiaomi-mimo', 'minimaxi'];
+export const PROVIDER_IDS: readonly ProviderId[] = [
+	'deepseek',
+	'opencode-go',
+	'xiaomi-mimo',
+	'minimaxi',
+];
 
 /** Maps model family → provider ID. */
 const FAMILY_TO_PROVIDER: Record<string, ProviderId> = {
@@ -248,38 +253,6 @@ export const MODELS: ModelDefinition[] = [
 		baseUrl: OPENCODE_GO_BASE_URL,
 	},
 	// ---- OpenCode Go Anthropic-protocol models ----
-	{
-		id: 'opencode-go-minimax-m2.7',
-		name: 'OpenCode Go MiniMax M2.7',
-		family: 'opencode-go-anthropic',
-		version: '2.7',
-		detail: 'MiniMax M2.7 via OpenCode Go',
-		maxContextTokens: 204800,
-		maxOutputTokens: 16384,
-		capabilities: {
-			toolCalling: 128,
-			imageInput: false,
-			thinking: true,
-		},
-		requiresThinkingParam: true,
-		baseUrl: OPENCODE_GO_ANTHROPIC_BASE_URL,
-	},
-	{
-		id: 'opencode-go-minimax-m2.5',
-		name: 'OpenCode Go MiniMax M2.5',
-		family: 'opencode-go-anthropic',
-		version: '2.5',
-		detail: 'MiniMax M2.5 via OpenCode Go',
-		maxContextTokens: 204800,
-		maxOutputTokens: 16384,
-		capabilities: {
-			toolCalling: 128,
-			imageInput: false,
-			thinking: true,
-		},
-		requiresThinkingParam: true,
-		baseUrl: OPENCODE_GO_ANTHROPIC_BASE_URL,
-	},
 	{
 		id: 'opencode-go-qwen3.7-max',
 		name: 'OpenCode Go Qwen3.7 Max',

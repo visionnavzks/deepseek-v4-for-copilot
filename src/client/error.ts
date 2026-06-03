@@ -1,19 +1,19 @@
 import { t } from '../i18n';
 import {
-    API_PROVIDER_HTTP_ERROR_LINKS,
-    MAX_DIAGNOSTIC_FIELD_LENGTH,
-    MINIMAX_API_HOST,
-    NETWORK_ERROR_CATEGORY_BY_CODE,
-    OFFICIAL_DEEPSEEK_API_HOST,
+	API_PROVIDER_HTTP_ERROR_LINKS,
+	MAX_DIAGNOSTIC_FIELD_LENGTH,
+	MINIMAX_API_HOST,
+	NETWORK_ERROR_CATEGORY_BY_CODE,
+	OFFICIAL_DEEPSEEK_API_HOST,
 } from './consts';
 import type {
-    ApiProviderId,
-    DeepSeekRequestErrorKind,
-    ErrorActionLink,
-    ErrorActionUrls,
-    HttpErrorLinkDefinition,
-    HttpErrorLinkStatusKey,
-    NetworkErrorCategory,
+	ApiProviderId,
+	DeepSeekRequestErrorKind,
+	ErrorActionLink,
+	ErrorActionUrls,
+	HttpErrorLinkDefinition,
+	HttpErrorLinkStatusKey,
+	NetworkErrorCategory,
 } from './types';
 
 const errorActionUrlStore = (() => {

@@ -1,5 +1,12 @@
 import vscode from 'vscode';
-import { API_KEY_SECRET, MODELS, PROVIDER_IDS, providerKeySecret, resolveProviderId, type ProviderId } from './consts';
+import {
+	API_KEY_SECRET,
+	MODELS,
+	PROVIDER_IDS,
+	providerKeySecret,
+	resolveProviderId,
+	type ProviderId,
+} from './consts';
 import { t } from './i18n';
 
 /**
@@ -147,7 +154,8 @@ export class AuthManager {
 		const promptText = t(promptKey);
 		const prompt = promptText !== promptKey ? promptText : t('auth.prompt');
 		const placeholderText = t(placeholderKey);
-		const placeholder = placeholderText !== placeholderKey ? placeholderText : t('auth.placeholder');
+		const placeholder =
+			placeholderText !== placeholderKey ? placeholderText : t('auth.placeholder');
 
 		const apiKey = await vscode.window.showInputBox({
 			prompt,

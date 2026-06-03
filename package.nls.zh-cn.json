@@ -48,8 +48,6 @@
   "deepseek-copilot.config.modelIdOverrides.opencode-go-glm-5.description": "GLM-5 (OpenCode Go) 的 API 模型 ID。",
   "deepseek-copilot.config.modelIdOverrides.opencode-go-kimi-k2.5.description": "Kimi K2.5 (OpenCode Go) 的 API 模型 ID。",
   "deepseek-copilot.config.modelIdOverrides.opencode-go-kimi-k2.6.description": "Kimi K2.6 (OpenCode Go) 的 API 模型 ID。",
-  "deepseek-copilot.config.modelIdOverrides.opencode-go-minimax-m2.7.description": "MiniMax M2.7 (OpenCode Go) 的 API 模型 ID。",
-  "deepseek-copilot.config.modelIdOverrides.opencode-go-minimax-m2.5.description": "MiniMax M2.5 (OpenCode Go) 的 API 模型 ID。",
   "deepseek-copilot.config.modelIdOverrides.opencode-go-qwen3.7-max.description": "Qwen3.7 Max (OpenCode Go) 的 API 模型 ID。",
   "deepseek-copilot.config.modelIdOverrides.opencode-go-qwen3.6-plus.description": "Qwen3.6 Plus (OpenCode Go) 的 API 模型 ID。",
   "deepseek-copilot.config.modelIdOverrides.xiaomi-mimo-v2.5.description": "小米 MiMo V2.5 的 API 模型 ID。",

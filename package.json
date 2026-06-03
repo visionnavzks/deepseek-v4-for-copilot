@@ -205,8 +205,6 @@
             "opencode-go-glm-5": "glm-5",
             "opencode-go-kimi-k2.5": "kimi-k2.5",
             "opencode-go-kimi-k2.6": "kimi-k2.6",
-            "opencode-go-minimax-m2.7": "minimax-m2.7",
-            "opencode-go-minimax-m2.5": "minimax-m2.5",
             "opencode-go-qwen3.7-max": "qwen3.7-max",
             "opencode-go-qwen3.6-plus": "qwen3.6-plus",
             "xiaomi-mimo-v2.5": "mimo-v2.5",
@@ -259,14 +257,6 @@
             "opencode-go-kimi-k2.6": {
               "type": "string",
               "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-kimi-k2.6.description%"
-            },
-            "opencode-go-minimax-m2.7": {
-              "type": "string",
-              "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-minimax-m2.7.description%"
-            },
-            "opencode-go-minimax-m2.5": {
-              "type": "string",
-              "description": "%deepseek-copilot.config.modelIdOverrides.opencode-go-minimax-m2.5.description%"
             },
             "opencode-go-qwen3.7-max": {
               "type": "string",

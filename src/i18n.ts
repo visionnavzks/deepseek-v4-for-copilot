@@ -30,8 +30,6 @@ const zh: Translations = {
 	'model.glm-5.detail': '智谱 GLM 通用模型',
 	'model.kimi-k2.5.detail': '月之暗面 Kimi 编程模型',
 	'model.kimi-k2.6.detail': '月之暗面 Kimi 最新模型',
-	'model.minimax-m2.7.detail': 'MiniMax M2.7',
-	'model.minimax-m2.5.detail': 'MiniMax M2.5',
 	'model.qwen3.7-max.detail': '通义千问 Qwen3.7 Max',
 	'model.qwen3.6-plus.detail': '通义千问 Qwen3.6 Plus',
 
@@ -123,8 +121,6 @@ const en: Translations = {
 	'model.glm-5.detail': 'Zhipu GLM general model',
 	'model.kimi-k2.5.detail': 'Moonshot Kimi coding model',
 	'model.kimi-k2.6.detail': 'Moonshot Kimi latest model',
-	'model.minimax-m2.7.detail': 'MiniMax M2.7',
-	'model.minimax-m2.5.detail': 'MiniMax M2.5',
 	'model.qwen3.7-max.detail': 'Qwen3.7 Max',
 	'model.qwen3.6-plus.detail': 'Qwen3.6 Plus',
 
