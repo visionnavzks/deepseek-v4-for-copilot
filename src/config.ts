@@ -4,6 +4,62 @@ import type { ModelDefinition } from './types';
 
 export type DebugMode = 'minimal' | 'metadata' | 'verbose';
 
+let cachedDebugMode: DebugMode | undefined;
+let debugModeSubscription: vscode.Disposable | undefined;
+
+/**
+ * Diagnostic mode. `verbose` also enables metadata logs.
+ *
+ * The legacy boolean `debug` setting is still read as a fallback so old
+ * settings keep working even if migration cannot update every scope.
+ *
+ * Result is cached and invalidated on relevant configuration changes.
+ */
+export function getDebugMode(): DebugMode {
+	ensureDebugModeSubscription();
+	if (cachedDebugMode !== undefined) {
+		return cachedDebugMode;
+	}
+
+	const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
+	const mode = getConfiguredDebugMode(config);
+	if (mode) {
+		cachedDebugMode = mode;
+		return mode;
+	}
+
+	cachedDebugMode = config.get<boolean>('debug', false) ? 'metadata' : 'minimal';
+	return cachedDebugMode;
+}
+
+/**
+ * Whether to log privacy-preserving diagnostic debug information.
+ */
+export function getDebugLoggingEnabled(): boolean {
+	return getDebugMode() !== 'minimal';
+}
+
+/**
+ * Whether to write full DeepSeek request payloads to disk.
+ */
+export function getRequestDumpEnabled(): boolean {
+	return getDebugMode() === 'verbose';
+}
+
+function ensureDebugModeSubscription(): void {
+	if (debugModeSubscription) {
+		return;
+	}
+	debugModeSubscription = vscode.workspace.onDidChangeConfiguration((event) => {
+		if (
+			event.affectsConfiguration(`${CONFIG_SECTION}.debugMode`) ||
+			event.affectsConfiguration(`${CONFIG_SECTION}.debug`)
+		) {
+			cachedDebugMode = undefined;
+		}
+	});
+}
+
 /**
  * Get DeepSeek API base URL from settings.
  * Falls back to the official endpoint when not configured.
@@ -44,34 +100,6 @@ export function getMaxTokens(): number | undefined {
 	const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
 	const value = config.get<number>('maxTokens', 0);
 	return value > 0 ? value : undefined;
-}
-
-/**
- * Diagnostic mode. `verbose` also enables metadata logs.
- *
- * The legacy boolean `debug` setting is still read as a fallback so old
- * settings keep working even if migration cannot update every scope.
- */
-export function getDebugMode(): DebugMode {
-	const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
-	const mode = getConfiguredDebugMode(config);
-	if (mode) return mode;
-
-	return config.get<boolean>('debug', false) ? 'metadata' : 'minimal';
-}
-
-/**
- * Whether to log privacy-preserving diagnostic debug information.
- */
-export function getDebugLoggingEnabled(): boolean {
-	return getDebugMode() !== 'minimal';
-}
-
-/**
- * Whether to write full DeepSeek request payloads to disk.
- */
-export function getRequestDumpEnabled(): boolean {
-	return getDebugMode() === 'verbose';
 }
 
 export function getStabilizeToolListEnabled(): boolean {

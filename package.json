@@ -56,8 +56,8 @@
         "title": "%deepseek-copilot.command.setApiKey%"
       },
       {
-        "command": "deepseek-copilot.getApiKey",
-        "title": "%deepseek-copilot.command.getApiKey%"
+        "command": "deepseek-copilot.openDeepSeekApiKeysPage",
+        "title": "%deepseek-copilot.command.openDeepSeekApiKeysPage%"
       },
       {
         "command": "deepseek-copilot.clearApiKey",

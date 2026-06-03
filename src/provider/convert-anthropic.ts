@@ -83,7 +83,7 @@ export function convertMessagesAnthropic(
 						type: 'tool_use',
 						id: tc.id,
 						name: tc.function.name,
-						input: JSON.parse(tc.function.arguments || '{}'),
+						input: parseToolArguments(tc.function.arguments),
 					});
 				}
 				anthropicMessages.push({ role: 'assistant', content: blocks });
@@ -132,4 +132,16 @@ export function convertToolsAnthropic(
 		description: tool.description,
 		input_schema: normalizeToolInputSchema(tool.inputSchema),
 	}));
+}
+
+function parseToolArguments(argumentsJson: string): Record<string, unknown> {
+	if (!argumentsJson) {
+		return {};
+	}
+	try {
+		const parsed = JSON.parse(argumentsJson);
+		return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+	} catch {
+		return {};
+	}
 }

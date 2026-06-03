@@ -36,7 +36,7 @@ export class AnthropicClient {
 						'x-api-key': this.apiKey,
 						'anthropic-version': '2023-06-01',
 					},
-					body: safeStringify({ ...request, stream: true }),
+					body: safeStringify(request),
 				},
 				{ controller, cancelListener },
 			);

@@ -10,7 +10,7 @@ export function registerCommands(context: vscode.ExtensionContext): void {
 		vscode.commands.registerCommand('deepseek-copilot.openRequestDumpsFolder', () =>
 			openRequestDumpsFolder(context),
 		),
-		vscode.commands.registerCommand('deepseek-copilot.getApiKey', () =>
+		vscode.commands.registerCommand('deepseek-copilot.openDeepSeekApiKeysPage', () =>
 			vscode.env.openExternal(vscode.Uri.parse(EXTERNAL_URLS.deepseek.apiKeys)),
 		),
 		vscode.commands.registerCommand('deepseek-copilot.openSettings', () =>

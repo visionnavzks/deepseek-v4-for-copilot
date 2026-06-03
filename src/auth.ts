@@ -1,5 +1,5 @@
 import vscode from 'vscode';
-import { API_KEY_SECRET, MODELS, providerKeySecret, resolveProviderId, type ProviderId } from './consts';
+import { API_KEY_SECRET, MODELS, PROVIDER_IDS, providerKeySecret, resolveProviderId, type ProviderId } from './consts';
 import { t } from './i18n';
 
 /**
@@ -100,7 +100,7 @@ export class AuthManager {
 	 * Used by the model picker to decide whether to show warning icons.
 	 */
 	async hasAnyApiKey(): Promise<boolean> {
-		for (const pid of ['deepseek', 'opencode-go', 'xiaomi-mimo', 'minimaxi'] as ProviderId[]) {
+		for (const pid of PROVIDER_IDS) {
 			if (await this.hasApiKeyForProvider(pid)) {
 				return true;
 			}

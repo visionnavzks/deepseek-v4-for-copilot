@@ -10,6 +10,7 @@ export async function initializeDiagnostics(context: vscode.ExtensionContext): P
 		logger.warn('Failed to migrate legacy debug setting', error);
 	}
 
+	let currentDebugMode = getDebugMode();
 	logger.info(
 		`Activating extension version=${context.extension.packageJSON.version}` +
 			` vscode=${vscode.version}` +
@@ -18,10 +19,9 @@ export async function initializeDiagnostics(context: vscode.ExtensionContext): P
 			` uiKind=${vscode.env.uiKind}` +
 			` platform=${process.platform}` +
 			` arch=${process.arch}` +
-			` debugMode=${getDebugMode()}`,
+			` debugMode=${currentDebugMode}`,
 	);
 
-	let currentDebugMode = getDebugMode();
 	context.subscriptions.push(
 		vscode.workspace.onDidChangeConfiguration((e) => {
 			if (e.affectsConfiguration(`${CONFIG_SECTION}.debugMode`)) {

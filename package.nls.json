@@ -1,6 +1,6 @@
 {
   "deepseek-copilot.command.setApiKey": "MultiModel: Set DeepSeek API Key",
-  "deepseek-copilot.command.getApiKey": "MultiModel: Get API Key",
+  "deepseek-copilot.command.openDeepSeekApiKeysPage": "MultiModel: Open DeepSeek API Keys Page",
   "deepseek-copilot.command.clearApiKey": "MultiModel: Clear API Key",
   "deepseek-copilot.command.setApiKey.deepseek": "MultiModel: Set DeepSeek API Key",
   "deepseek-copilot.command.clearApiKey.deepseek": "MultiModel: Clear DeepSeek API Key",
@@ -16,7 +16,7 @@
   "deepseek-copilot.walkthrough.title": "MultiModel for Copilot Chat",
   "deepseek-copilot.walkthrough.description": "Add DeepSeek, MiniMax, and more models to Copilot Chat.",
   "deepseek-copilot.walkthrough.setApiKey.title": "Set your API key",
-  "deepseek-copilot.walkthrough.setApiKey.description": "[Get a DeepSeek API key](command:deepseek-copilot.getApiKey) from deepseek.com.\n[Set API Key](command:deepseek-copilot.setApiKey)",
+  "deepseek-copilot.walkthrough.setApiKey.description": "[Get a DeepSeek API key](command:deepseek-copilot.openDeepSeekApiKeysPage) from deepseek.com.\n[Set API Key](command:deepseek-copilot.setApiKey)",
   "deepseek-copilot.walkthrough.showModels.title": "Show available models",
   "deepseek-copilot.walkthrough.showModels.description": "If the models are hidden, open VS Code's Language Models manager and show the MultiModel models.\n[Open Language Models](command:workbench.action.chat.manage)",
   "deepseek-copilot.walkthrough.advancedSettings.title": "Try advanced settings",
