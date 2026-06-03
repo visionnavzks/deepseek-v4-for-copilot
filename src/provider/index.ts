@@ -15,7 +15,6 @@ import { resolveConversationSegment } from './segment';
 import { streamChatCompletion } from './stream';
 import { estimateTokenCount } from './tokens';
 import { processToolFlow } from './tools/flow';
-import { createVisionModelGetter, setVisionProxyModel } from './vision/index';
 
 /**
  * DeepSeek Chat Provider — implements vscode.LanguageModelChatProvider so
@@ -32,9 +31,6 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 
 	private readonly cacheDiagnostics = createCacheDiagnosticsRecorder();
 
-	/** Vision proxy: resolver + cached model. */
-	private readonly vision = createVisionModelGetter();
-
 	/**
 	 * Adaptive chars-per-token ratio, calibrated from actual usage data.
 	 * Updated via exponential moving average each time the API reports real token counts.
@@ -47,17 +43,12 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 
 		context.subscriptions.push(
 			this.onDidChangeLanguageModelChatInformationEmitter,
-			// Settings-based fallback API key + vision model changes.
 			vscode.workspace.onDidChangeConfiguration((e) => {
 				if (
 					e.affectsConfiguration('deepseek-copilot.apiKey') ||
 					e.affectsConfiguration('deepseek-copilot.apiKeys')
 				) {
 					this.onDidChangeLanguageModelChatInformationEmitter.fire();
-				}
-
-				if (e.affectsConfiguration('deepseek-copilot.visionModel')) {
-					this.vision.reset();
 				}
 			}),
 			// Multi-window: SecretStorage changes don't fire onDidChangeConfiguration.
@@ -124,11 +115,6 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 		}
 	}
 
-	/** See provider/vision */
-	async setVisionProxyModel(): Promise<void> {
-		await setVisionProxyModel();
-	}
-
 	// ---- LanguageModelChatProvider ----
 
 	async provideLanguageModelChatInformation(
@@ -187,10 +173,7 @@ export class DeepSeekChatProvider implements vscode.LanguageModelChatProvider {
 			segment,
 			messages: toolFlow.messages,
 			options,
-			token,
 			cacheDiagnostics: this.cacheDiagnostics,
-			getVisionModel: () => this.vision.get(),
-			progress,
 		});
 
 		return streamChatCompletion({

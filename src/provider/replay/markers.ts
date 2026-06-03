@@ -14,7 +14,6 @@ import type {
 	ReplayMarkerMetadata,
 	ReplayMarkerParseResult,
 	ReplayMarkerPayloadFormat,
-	VisionMarkerTextIgnoredReason,
 } from './types';
 
 export function findFirstReplayMarker(
@@ -46,16 +45,13 @@ function parseReplayMarkerPart(part: unknown): ReplayMarkerParseResult | undefin
 }
 
 export function hasReplayMarkerMetadata(metadata: ReplayMarkerMetadata): boolean {
-	return Boolean(metadata.visionText || metadata.reasoningText);
+	return Boolean(metadata.reasoningText);
 }
 
 export function createReplayMarkerPart(
 	metadata: ReplayMarkerMetadata,
 ): vscode.LanguageModelDataPart {
-	const payload = encodeReplayMarkerJson({
-		...createVisionMarkerPayload(metadata.visionText),
-		...createReasoningMarkerPayload(metadata.reasoningText),
-	});
+	const payload = encodeReplayMarkerJson(createReasoningMarkerPayload(metadata.reasoningText));
 	return new vscode.LanguageModelDataPart(
 		new TextEncoder().encode(`${REPLAY_MARKER_WRITER_ID}\\${payload}`),
 		REPLAY_MARKER_MIME,
@@ -101,14 +97,12 @@ export function parseReplayMarkerData(data: Uint8Array): ReplayMarkerParseResult
 			return { valid: false, error: segmentId.error };
 		}
 
-		const vision = parseVisionMarkerMetadata(value);
 		const reasoning = parseReasoningMarkerMetadata(value);
 		return {
 			valid: true,
 			segmentId: segmentId.value,
-			...vision,
 			...reasoning,
-			legacySegmentOnly: Boolean(segmentId.value && !vision.visionText && !reasoning.reasoningText),
+			legacySegmentOnly: Boolean(segmentId.value && !reasoning.reasoningText),
 			payloadFormat: decodedPayload.format,
 		};
 	} catch {
@@ -131,33 +125,6 @@ function parseOptionalSegmentId(value: object): {
 		return { error: 'segment-id-not-uuid' };
 	}
 	return { value: segmentId.toLowerCase() };
-}
-
-function createVisionMarkerPayload(visionText: string | undefined): object {
-	return visionText ? { vision: { text: visionText } } : {};
-}
-
-function parseVisionMarkerMetadata(value: object): {
-	visionText?: string;
-	visionTextIgnoredReason?: VisionMarkerTextIgnoredReason;
-} {
-	const vision = (value as { vision?: unknown }).vision;
-	if (vision === undefined) {
-		return {};
-	}
-	if (!vision || typeof vision !== 'object' || Array.isArray(vision)) {
-		return { visionTextIgnoredReason: 'vision-not-object' };
-	}
-
-	const text = (vision as { text?: unknown }).text;
-	if (typeof text !== 'string') {
-		return { visionTextIgnoredReason: 'vision-text-not-string' };
-	}
-	if (text.length === 0) {
-		return { visionTextIgnoredReason: 'vision-text-empty' };
-	}
-
-	return { visionText: text };
 }
 
 function createReasoningMarkerPayload(reasoningText: string | undefined): object {

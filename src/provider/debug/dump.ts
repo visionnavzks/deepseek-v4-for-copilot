@@ -11,13 +11,12 @@ import { extractMessageText, type DeepSeekMessage, type DeepSeekRequest } from '
 import { parseReplayMarkerData, REPLAY_MARKER_MIME } from '../replay';
 import type { ConversationSegment } from '../segment';
 import { ACTIVATE_TOOL_PREFIX } from '../tools/consts';
-import type { VisionResolutionStats } from '../vision/index';
 import {
-    classifyDeepSeekRequest,
-    classifyProviderRequest,
-    formatModelFields,
-    formatRequestLogLine,
-    type RequestKind,
+	classifyDeepSeekRequest,
+	classifyProviderRequest,
+	formatModelFields,
+	formatRequestLogLine,
+	type RequestKind,
 } from './classifier';
 
 let dumpCounter = 0;
@@ -105,8 +104,6 @@ export interface DumpDeepSeekRequestOptions {
 	inputMessages: readonly vscode.LanguageModelChatRequestMessage[];
 	resolvedMessages: readonly vscode.LanguageModelChatRequestMessage[];
 	requestOptions: vscode.ProvideLanguageModelChatResponseOptions;
-	visionModelId?: string;
-	visionStats?: VisionResolutionStats;
 }
 
 export interface DumpProviderInputOptions {
@@ -174,7 +171,7 @@ export function dumpProviderInput(options: DumpProviderInputOptions): void {
  * Files land under `<dump root>/<conversationSegmentId>/` so marker replay and
  * cache-lineage changes are easy to inspect across provider calls:
  *   deepseek-request-<timestamp>-NNNN.input.json     — VS Code input snapshot
- *   deepseek-request-<timestamp>-NNNN.resolved.json  — post-vision VS Code snapshot
+ *   deepseek-request-<timestamp>-NNNN.resolved.json  — post-preprocess VS Code snapshot
  *   deepseek-request-<timestamp>-NNNN.json           — full request body
  *   deepseek-request-<timestamp>-NNNN.msg0.txt       — messages[0] content (system prompt)
  */
@@ -352,8 +349,8 @@ function createPipelineSnapshot(
 		vision:
 			stage === 'resolved'
 				? {
-						modelId: options.visionModelId ?? null,
-						stats: options.visionStats ?? null,
+						modelId: null,
+						stats: null,
 					}
 				: undefined,
 		deepSeekPromptSummary: summarizeDeepSeekSystemPrompt(request.messages),
@@ -448,9 +445,6 @@ type SerializedContentPart =
 				segmentId?: string;
 				payloadFormat?: string;
 				legacySegmentOnly?: boolean;
-				visionTextChars?: number;
-				visionTextHash?: string;
-				visionTextIgnoredReason?: string;
 				reasoningTextChars?: number;
 				reasoningTextHash?: string;
 				reasoningTextIgnoredReason?: string;
@@ -565,9 +559,6 @@ function summarizeReplayMarker(marker: ReturnType<typeof parseReplayMarkerData>)
 	segmentId?: string;
 	payloadFormat?: string;
 	legacySegmentOnly?: boolean;
-	visionTextChars?: number;
-	visionTextHash?: string;
-	visionTextIgnoredReason?: string;
 	reasoningTextChars?: number;
 	reasoningTextHash?: string;
 	reasoningTextIgnoredReason?: string;
@@ -578,9 +569,6 @@ function summarizeReplayMarker(marker: ReturnType<typeof parseReplayMarkerData>)
 		segmentId: marker.segmentId,
 		payloadFormat: marker.payloadFormat,
 		legacySegmentOnly: marker.legacySegmentOnly,
-		visionTextChars: marker.visionText?.length,
-		visionTextHash: marker.visionText ? hashString(marker.visionText) : undefined,
-		visionTextIgnoredReason: marker.visionTextIgnoredReason,
 		reasoningTextChars: marker.reasoningText?.length,
 		reasoningTextHash: marker.reasoningText ? hashString(marker.reasoningText) : undefined,
 		reasoningTextIgnoredReason: marker.reasoningTextIgnoredReason,
@@ -670,7 +658,12 @@ function summarizeDeepSeekSystemPrompt(messages: readonly DeepSeekMessage[]): Sy
 		return createSystemPromptSummary(null, null, '', customizations);
 	}
 
-	return createSystemPromptSummary(0, message.role, extractMessageText(message.content ?? ''), customizations);
+	return createSystemPromptSummary(
+		0,
+		message.role,
+		extractMessageText(message.content ?? ''),
+		customizations,
+	);
 }
 
 function createSystemPromptSummary(

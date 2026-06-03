@@ -3,13 +3,17 @@ import vscode from 'vscode';
 import { getDebugLoggingEnabled } from '../../config';
 import { LANGUAGE_MODEL_CHAT_SYSTEM_ROLE } from '../../consts';
 import { logger } from '../../logger';
-import { extractMessageText, type DeepSeekMessage, type DeepSeekRequest, type DeepSeekTool, type DeepSeekUsage } from '../../types';
+import {
+	extractMessageText,
+	type DeepSeekMessage,
+	type DeepSeekRequest,
+	type DeepSeekTool,
+	type DeepSeekUsage,
+} from '../../types';
 import { REPLAY_MARKER_MIME, parseFirstReplayMarker } from '../replay';
 import type { ConversationSegment } from '../segment';
 import { ACTIVATE_TOOL_PREFIX } from '../tools/consts';
 import type { ActivatePreflightInspection } from '../tools/preflight';
-import { IMAGE_DESCRIPTION_UNAVAILABLE } from '../vision/consts';
-import type { VisionResolutionStats as VisionPipelineStats } from '../vision/index';
 import {
 	classifyDeepSeekRequest,
 	formatModelFields,
@@ -173,8 +177,6 @@ export interface BeginCacheDiagnosticsOptions {
 	maxTokens: number | undefined;
 	inputMessages: readonly vscode.LanguageModelChatRequestMessage[];
 	resolvedMessages: readonly vscode.LanguageModelChatRequestMessage[];
-	visionModelId?: string;
-	visionStats?: VisionPipelineStats;
 }
 
 export interface CacheDiagnosticsDoneInfo {
@@ -198,7 +200,6 @@ export interface ReplayMarkerReportInfo {
 	status: ReplayMarkerReportStatus;
 	trigger?: ReplayMarkerReportTrigger;
 	markerBytes?: number;
-	visionTextChars?: number;
 	reasoningTextChars?: number;
 	reason?: 'cancelled' | 'stream-error' | 'no-replay-data';
 	error?: unknown;
@@ -290,11 +291,8 @@ export function logToolFlowDiagnostics({
 interface VisionMessageStats {
 	inputImageParts: number;
 	inputImageMessages: number;
-	describedImageMessages: number;
-	failedImageMessages: number;
 	droppedImageParts: number;
 	historyDescriptionMessages: number;
-	visionModelId?: string;
 }
 
 interface HostPromptTrace {
@@ -384,7 +382,6 @@ class DefaultCacheDiagnosticsRecorder implements CacheDiagnosticsRecorder {
 		const visionResolution = summarizeVisionResolution(
 			options.inputMessages,
 			options.resolvedMessages,
-			options.visionModelId,
 		);
 
 		logger.info(
@@ -435,7 +432,7 @@ class DefaultCacheDiagnosticsRecorder implements CacheDiagnosticsRecorder {
 				logger.info(message);
 			}
 		}
-		const visionTrace = formatVisionTrace(visionResolution, options.visionStats);
+		const visionTrace = formatVisionTrace(visionResolution);
 		if (visionTrace) {
 			logger.info(formatRequestLogLine(requestKind, `[cache-trace #${requestId}] ${visionTrace}`));
 		}
@@ -685,8 +682,6 @@ function formatSegmentTrace(segment: ConversationSegment): string {
 function formatReplayMarkerReport(info: ReplayMarkerReportInfo): string {
 	const trigger = info.trigger ? ` trigger=${info.trigger}` : '';
 	const markerBytes = info.markerBytes === undefined ? '' : ` markerBytes=${info.markerBytes}`;
-	const visionTextChars =
-		info.visionTextChars === undefined ? '' : ` visionTextChars=${info.visionTextChars}`;
 	const reasoningTextChars =
 		info.reasoningTextChars === undefined ? '' : ` reasoningTextChars=${info.reasoningTextChars}`;
 	const reason = info.reason ? ` reason=${info.reason}` : '';
@@ -695,7 +690,6 @@ function formatReplayMarkerReport(info: ReplayMarkerReportInfo): string {
 		`replayMarker status=${info.status}` +
 		trigger +
 		markerBytes +
-		visionTextChars +
 		reasoningTextChars +
 		reason +
 		error
@@ -823,16 +817,12 @@ function getCacheHitRate(usage: DeepSeekUsage): string {
 function summarizeVisionResolution(
 	inputMessages: readonly vscode.LanguageModelChatRequestMessage[],
 	resolvedMessages: readonly vscode.LanguageModelChatRequestMessage[],
-	visionModelId: string | undefined,
 ): VisionMessageStats {
 	const stats: VisionMessageStats = {
 		inputImageParts: 0,
 		inputImageMessages: 0,
-		describedImageMessages: 0,
-		failedImageMessages: 0,
 		droppedImageParts: 0,
 		historyDescriptionMessages: 0,
-		visionModelId,
 	};
 
 	for (const [index, message] of inputMessages.entries()) {
@@ -848,25 +838,7 @@ function summarizeVisionResolution(
 
 			const resolvedMessage = resolvedMessages[index];
 			const resolvedImageParts = resolvedMessage ? countImageDataParts(resolvedMessage) : 0;
-			const resolvedText = resolvedMessage ? getMessageText(resolvedMessage) : '';
-			const newDescriptions = Math.max(
-				0,
-				countLiteral(resolvedText, '[Image Description:') -
-					countLiteral(inputText, '[Image Description:'),
-			);
-			const newFailures = Math.max(
-				0,
-				countLiteral(resolvedText, IMAGE_DESCRIPTION_UNAVAILABLE) -
-					countLiteral(inputText, IMAGE_DESCRIPTION_UNAVAILABLE),
-			);
-
-			if (newDescriptions > 0) {
-				stats.describedImageMessages += 1;
-			}
-			if (newFailures > 0) {
-				stats.failedImageMessages += 1;
-			}
-			if (resolvedImageParts < imageParts && newDescriptions === 0 && newFailures === 0) {
+			if (resolvedImageParts < imageParts) {
 				stats.droppedImageParts += imageParts - resolvedImageParts;
 			}
 		}
@@ -893,80 +865,21 @@ function getMessageText(message: vscode.LanguageModelChatRequestMessage): string
 	return text;
 }
 
-function formatVisionTrace(
-	stats: VisionMessageStats,
-	pipelineStats: VisionPipelineStats | undefined,
-): string | undefined {
-	if (
-		stats.inputImageParts === 0 &&
-		stats.historyDescriptionMessages === 0 &&
-		!hasVisionPipelineActivity(pipelineStats)
-	) {
+function formatVisionTrace(stats: VisionMessageStats): string | undefined {
+	if (stats.inputImageParts === 0 && stats.historyDescriptionMessages === 0) {
 		return undefined;
 	}
 
 	const note =
 		stats.inputImageParts === 0 && stats.historyDescriptionMessages > 0 ? ' note=history-only' : '';
-	const visionModel = formatVisionModel(stats);
 	const parts = [
 		`vision inputImages=${stats.inputImageParts}`,
 		`inputMessages=${stats.inputImageMessages}`,
 	];
-
-	if (pipelineStats && hasVisionPipelineActivity(pipelineStats)) {
-		parts.push(
-			`current=${pipelineStats.currentImageMessages}`,
-			`generated=${pipelineStats.generatedImageMessages}`,
-			`replayed=${pipelineStats.replayedImageMessages}`,
-			`omitted=${pipelineStats.omittedImageMessages}`,
-			`droppedParts=${pipelineStats.droppedImageParts}`,
-		);
-		appendNumberIfNonZero(parts, 'unavailable', pipelineStats.unavailableImageMessages);
-		appendNumberIfNonZero(parts, 'failed', pipelineStats.failedImageMessages);
-		appendNumberIfNonZero(parts, 'markerChars', pipelineStats.markerVisionTextChars);
-		appendNumberIfNonZero(parts, 'invalidMarkerVision', pipelineStats.invalidMarkerVisionMetadata);
-	} else {
-		appendNumberIfNonZero(parts, 'generated', stats.describedImageMessages);
-		appendNumberIfNonZero(parts, 'failed', stats.failedImageMessages);
-		appendNumberIfNonZero(parts, 'droppedParts', stats.droppedImageParts);
-	}
-
-	parts.push(`model=${visionModel}`);
+	appendNumberIfNonZero(parts, 'droppedParts', stats.droppedImageParts);
+	parts.push('model=none');
 	appendNumberIfNonZero(parts, 'historyDescriptions', stats.historyDescriptionMessages);
 	return parts.join(' ') + note;
-}
-
-function hasVisionPipelineActivity(stats: VisionPipelineStats | undefined): boolean {
-	if (!stats) {
-		return false;
-	}
-	return (
-		stats.inputImageParts > 0 ||
-		stats.currentImageMessages > 0 ||
-		stats.generatedImageMessages > 0 ||
-		stats.replayedImageMessages > 0 ||
-		stats.omittedImageMessages > 0 ||
-		stats.unavailableImageMessages > 0 ||
-		stats.failedImageMessages > 0 ||
-		stats.invalidMarkerVisionMetadata > 0
-	);
-}
-
-function formatVisionModel(stats: VisionMessageStats): string {
-	if (stats.visionModelId) {
-		return stats.visionModelId;
-	}
-	if (stats.inputImageParts === 0) {
-		return 'none';
-	}
-	if (
-		stats.droppedImageParts > 0 &&
-		stats.describedImageMessages === 0 &&
-		stats.failedImageMessages === 0
-	) {
-		return 'none';
-	}
-	return 'unknown';
 }
 
 function formatVscodeMessageTrace(
@@ -1605,7 +1518,7 @@ function summarizeMessage(
 	const hasEmptyReasoningContent = hasReasoningContent && reasoningChars === 0;
 	const contentText = extractMessageText(message.content);
 	const imageDescriptionCount = countLiteral(contentText, '[Image Description:');
-	const unableImageCount = countLiteral(contentText, IMAGE_DESCRIPTION_UNAVAILABLE);
+	const unableImageCount = countLiteral(contentText, '[Image Description unavailable]');
 	const urlCount = countRegex(contentText, /https?:\/\//g);
 	const codeFenceCount = countLiteral(contentText, '```');
 	const likelyPathCount = countLikelyPaths(contentText);
@@ -1821,7 +1734,7 @@ function summarizeStats(messages: DeepSeekMessage[], toolCount: number): CacheTr
 			imageDescriptionMessages += 1;
 			imageDescriptionParts += imageDescriptions;
 		}
-		if (msgContentText.includes(IMAGE_DESCRIPTION_UNAVAILABLE)) {
+		if (msgContentText.includes('[Image Description unavailable]')) {
 			unableImageMessages += 1;
 		}
 

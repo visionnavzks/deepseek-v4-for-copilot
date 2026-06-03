@@ -5,7 +5,7 @@ import { getApiModelId, getBaseUrlForModel, getMaxTokens } from '../config';
 import { MODELS } from '../consts';
 import { t } from '../i18n';
 import type { AnthropicRequest, DeepSeekRequest, StreamCallbacks } from '../types';
-import { convertMessages, countMessageChars } from './convert';
+import { convertMessages, countMessageChars, stripUnsupportedImages } from './convert';
 import { convertMessagesAnthropic, convertToolsAnthropic } from './convert-anthropic';
 import {
 	classifyDeepSeekRequest,
@@ -18,7 +18,6 @@ import { getConfiguredThinkingEffort, type ModelConfigurationOptions } from './m
 import type { ReplayMarkerMetadata } from './replay';
 import type { ConversationSegment } from './segment';
 import { collectTrailingToolResultIds, prepareRequestTools } from './tools/request';
-import { resolveImageMessages } from './vision/index';
 
 export type ChatClient =
 	| { kind: 'deepseek'; client: DeepSeekClient; request: DeepSeekRequest }
@@ -33,7 +32,6 @@ export interface PreparedChatRequest {
 	requestKind: RequestKind;
 	segment: ConversationSegment;
 	replayMarkerMetadata: ReplayMarkerMetadata;
-	visionMarkerTextChars?: number;
 }
 
 export interface PrepareChatRequestOptions {
@@ -43,10 +41,7 @@ export interface PrepareChatRequestOptions {
 	segment: ConversationSegment;
 	messages: readonly vscode.LanguageModelChatRequestMessage[];
 	options: vscode.ProvideLanguageModelChatResponseOptions;
-	token: vscode.CancellationToken;
 	cacheDiagnostics: CacheDiagnosticsRecorder;
-	getVisionModel: () => Promise<vscode.LanguageModelChat | undefined>;
-	progress: vscode.Progress<vscode.LanguageModelResponsePart>;
 }
 
 export function streamPreparedRequest(
@@ -75,10 +70,7 @@ export async function prepareChatRequest({
 	segment,
 	messages,
 	options,
-	token,
 	cacheDiagnostics,
-	getVisionModel,
-	progress,
 }: PrepareChatRequestOptions): Promise<PreparedChatRequest> {
 	const apiKey = await authManager.getApiKeyForModel(modelInfo.id);
 	if (!apiKey) {
@@ -91,21 +83,10 @@ export async function prepareChatRequest({
 	const thinkingEffort = getConfiguredThinkingEffort(options as ModelConfigurationOptions);
 	const maxTokens = getMaxTokens();
 
-	const [visionResolution, tools] = await Promise.all([
-		resolveImageMessages(
-			messages,
-			token,
-			getVisionModel,
-			modelDef?.capabilities.imageInput ?? false,
-			{
-				onVisionStarted: () => {
-					progress.report(new vscode.LanguageModelTextPart(t('vision.inProgress')));
-				},
-			},
-		),
-		Promise.resolve(prepareRequestTools(modelDef?.capabilities.toolCalling, options)),
-	]);
-	const resolvedMessages = visionResolution.messages;
+	const resolvedMessages = modelDef?.capabilities.imageInput
+		? messages
+		: stripUnsupportedImages(messages);
+	const tools = prepareRequestTools(modelDef?.capabilities.toolCalling, options);
 
 	const isAnthropicFamily = modelDef?.family === 'opencode-go-anthropic';
 
@@ -218,8 +199,6 @@ export async function prepareChatRequest({
 		inputMessages: messages,
 		resolvedMessages,
 		requestOptions: options,
-		visionModelId: visionResolution.visionModelId,
-		visionStats: visionResolution.stats,
 	});
 
 	const diagnosticsRun = cacheDiagnostics.beginRequest({
@@ -232,8 +211,6 @@ export async function prepareChatRequest({
 		maxTokens,
 		inputMessages: messages,
 		resolvedMessages,
-		visionModelId: visionResolution.visionModelId,
-		visionStats: visionResolution.stats,
 	});
 
 	return {
@@ -244,7 +221,6 @@ export async function prepareChatRequest({
 		cacheDiagnostics: diagnosticsRun,
 		requestKind,
 		segment,
-		replayMarkerMetadata: visionResolution.replayMarkerMetadata,
-		visionMarkerTextChars: visionResolution.stats.markerVisionTextChars || undefined,
+		replayMarkerMetadata: {},
 	};
 }

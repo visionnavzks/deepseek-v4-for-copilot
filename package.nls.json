@@ -10,7 +10,6 @@
   "deepseek-copilot.command.clearApiKey.xiaomi-mimo": "MultiModel: Clear Xiaomi MiMo API Key",
   "deepseek-copilot.command.setApiKey.minimaxi": "MultiModel: Set MiniMax API Key",
   "deepseek-copilot.command.clearApiKey.minimaxi": "MultiModel: Clear MiniMax API Key",
-  "deepseek-copilot.command.setVisionModel": "MultiModel: Set Vision Proxy Model",
   "deepseek-copilot.command.openSettings": "MultiModel: Open Settings",
   "deepseek-copilot.command.showLogs": "MultiModel: Show Logs",
   "deepseek-copilot.command.openRequestDumpsFolder": "MultiModel: Open Request Dumps Folder",
@@ -21,7 +20,7 @@
   "deepseek-copilot.walkthrough.showModels.title": "Show available models",
   "deepseek-copilot.walkthrough.showModels.description": "If the models are hidden, open VS Code's Language Models manager and show the MultiModel models.\n[Open Language Models](command:workbench.action.chat.manage)",
   "deepseek-copilot.walkthrough.advancedSettings.title": "Try advanced settings",
-  "deepseek-copilot.walkthrough.advancedSettings.description": "Customize providers and model names, configure the vision proxy, enable experimental settings, and more in the extension settings.\n[Open settings](command:deepseek-copilot.openSettings)",
+  "deepseek-copilot.walkthrough.advancedSettings.description": "Customize providers and model names, enable experimental settings, and more in the extension settings.\n[Open settings](command:deepseek-copilot.openSettings)",
   "deepseek-copilot.config.title": "MultiModel Copilot",
   "deepseek-copilot.config.baseUrl.description": "Default API base URL for DeepSeek models. Defaults to official DeepSeek API endpoint.",
   "deepseek-copilot.config.apiKeys.description": "Per-provider API keys (fallback for SecretStorage). Keys stored via the Set API Key commands are more secure. Each provider needs its own key.",
@@ -57,7 +56,5 @@
   "deepseek-copilot.config.modelIdOverrides.xiaomi-mimo-v2.5-pro.description": "API model ID for Xiaomi MiMo V2.5 Pro",
   "deepseek-copilot.config.modelIdOverrides.minimaxi-m3.description": "API model ID for MiniMax-M3",
   "deepseek-copilot.config.modelIdOverrides.minimaxi-m2.7.description": "API model ID for MiniMax-M2.7",
-  "deepseek-copilot.config.modelIdOverrides.minimaxi-m2.7-highspeed.description": "API model ID for MiniMax-M2.7 High-Speed",
-  "deepseek-copilot.config.visionModel.description": "Model ID for vision proxy (describes images for text-only models). Leave empty for auto-detection. Use 'MultiModel: Set Vision Proxy Model' command to pick one from a list.",
-  "deepseek-copilot.config.visionPrompt.description": "Prompt sent to the vision proxy model when describing image attachments before forwarding them to the target model."
+  "deepseek-copilot.config.modelIdOverrides.minimaxi-m2.7-highspeed.description": "API model ID for MiniMax-M2.7 High-Speed"
 }

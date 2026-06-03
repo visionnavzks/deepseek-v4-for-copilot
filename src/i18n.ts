@@ -62,17 +62,6 @@ const zh: Translations = {
 	'thinking.max': '深度',
 	'thinking.max.desc': '深度推理，适合复杂任务',
 
-	// Vision
-	'vision.vendorLabel': '提供商：{0}',
-	'vision.noModel': '当前环境中没有可用的视觉代理模型。',
-	'vision.pickPlaceholder': '选择用于描述图片的模型 (默认 {0})',
-	'vision.current': '当前',
-	'vision.proxyUsing': '视觉代理：{0}',
-	'vision.notFound': '未找到视觉模型 "{0}"',
-	'vision.unavailable': '无可用视觉模型，图片已忽略。',
-	'vision.proxyError': '视觉代理异常：',
-	'vision.inProgress': '\n*[描述图片中…]*\n',
-
 	// Request
 	'request.toolsLimitExceeded':
 		'单次 tools 请求最多支持 {0} 个 functions，当前请求包含 {1} 个。请先用 VS Code 的 Configure Tools 关闭不常用的工具；如果正在使用实验性稳定工具列表设置，请关闭它。',
@@ -166,19 +155,6 @@ const en: Translations = {
 	'thinking.high.desc': 'Recommended for most tasks',
 	'thinking.max': 'Max',
 	'thinking.max.desc': 'Maximum reasoning depth for complex agent tasks',
-
-	// Vision
-	// NOTE: vision.unableToDescribe has been moved to consts.ts as
-	// IMAGE_DESCRIPTION_UNAVAILABLE — it is prompt content, not UI text.
-	'vision.vendorLabel': 'vendor: {0}',
-	'vision.noModel': 'No vision proxy models are available in the current environment',
-	'vision.pickPlaceholder': 'Select a model for image description (default: {0})',
-	'vision.current': 'Current',
-	'vision.proxyUsing': 'Vision proxy: {0}',
-	'vision.notFound': 'Vision model "{0}" not found',
-	'vision.unavailable': 'No vision models available, image(s) ignored',
-	'vision.proxyError': 'Vision proxy error:',
-	'vision.inProgress': '\n*[Describing image…]*\n',
 
 	// Request
 	'request.toolsLimitExceeded':
