@@ -3,7 +3,7 @@
   "displayName": "MultiModel for Copilot Chat",
   "description": "Drop DeepSeek V4, MiniMax, and more into Copilot Chat's model picker. Vision, thinking mode, agent tools — zero config, BYOK.",
   "icon": "resources/icon.png",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "publisher": "Vizards",
   "license": "MIT",
   "repository": {
